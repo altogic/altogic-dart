@@ -1,0 +1,13 @@
+name: altogic_dart
+description: Dart client for Altogic. Altogic is a backend application development and execution platform, enabling people and businesses to design, deploy and manage scalable applications.
+version: 0.0.1
+homepage: https://github.com/altogic/altogic-dart
+repository: https://github.com/altogic/altogic-dart
+
+environment:
+  sdk: '>=2.17.0 <3.0.0'
+
+dev_dependencies:
+  collection: any
+  lints: ^2.0.0
+  test: ^1.21.1

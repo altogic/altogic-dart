@@ -1,0 +1,1 @@
+dynamic platformGetParamValue(String param) {}
