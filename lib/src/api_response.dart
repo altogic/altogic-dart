@@ -7,7 +7,7 @@ class APIResponse<T> {
 
   APIError? errors;
 
-  APIResponse<R> cast<R>() => APIResponse<R>(data: data as R, errors: errors);
+  APIResponse<R> cast<R>() => APIResponse<R>(data: data as R?, errors: errors);
 }
 
 class UserSessionResult {

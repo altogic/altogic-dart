@@ -11,7 +11,8 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
   throw UnimplementedError();
 }
 
-Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
+Future<APIResponse<dynamic>> handlePlatformUpload(
+    String path, Object body, String fileName, String contentType,
     {required Map<String, dynamic> query,
     required Map<String, dynamic> headers,
     void Function(int loaded, int total, double percent)? onProgress,

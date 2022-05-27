@@ -1,20 +1,20 @@
 import 'package:altogic_dart/altogic_dart.dart';
 
-Future<void> main() async {
+void main() async {
   var client = AltogicClient(
       envUrl: 'https://c1-na.altogic.com/e:62863f06bb75ed002ed0f207',
       clientKey: '5ad8526dbd014613a8dbeff60daa7c26');
 
-  var signIn =
+  var auth =
       await client.auth.signInWithEmail('mehmedyaz@gmail.com', 'mehmetyaz');
 
-  print(signIn.errors);
+  if (auth.errors == null) {
+    var res =
+        await client.db.model('test').filter('STARTSWITH(name , test)').get();
 
-  print(signIn.session?.toJson());
-  print(signIn.user?.toJson());
-
-  await client.endpoint.get('path').asList();
-
-  ///
-  ///
+    print(res.errors);
+    print(res.data);
+  } else {
+    print(auth.errors);
+  }
 }

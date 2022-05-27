@@ -275,11 +275,19 @@ class APIError implements Exception {
 class ErrorEntry {
   ErrorEntry({this.origin, this.code, this.message, this.details});
 
-  factory ErrorEntry.fromJson(Map<String, dynamic> json) => ErrorEntry(
-      origin: (json['origin'] ?? json['name']) as String?,
-      code: json['code'] as String?,
-      message: json['message'] as String?,
-      details: json['details'] as Map<String, dynamic>?);
+  factory ErrorEntry.fromJson(Map<String, dynamic> json) {
+    try {
+      return ErrorEntry(
+          origin: json['origin'] as String,
+          code: json['code'] as String,
+          message: json['message'] as String,
+          details: json['details'] as Map<String, dynamic>?);
+    } catch (e) {
+      print('WARN: error entry is wrong'
+          '\n$json\nError: $e');
+      rethrow;
+    }
+  }
 
   @override
   String toString() => 'origin: $origin\n'
@@ -325,12 +333,24 @@ class MessageInfo {
       status: MessageStatus.values
           .where((element) => element.name == (json['status'] as String))
           .first,
-      completedAt: json['completedAt'] as String,
+      completedAt: json['completedAt'] as String?,
       messageId: json['messageId'] as String,
       queueId: json['queueId'] as String,
       queueName: json['queueName'] as String,
-      startedAt: json['startedAt'] as String,
+      startedAt: json['startedAt'] as String?,
       submittedAt: json['submittedAt'] as String);
+
+  ///
+  Map<String, dynamic> toJson() => {
+        'errors': errors,
+        'status': status.name,
+        'completedAt': completedAt,
+        'messageId': messageId,
+        'queueId': queueId,
+        'queueName': queueName,
+        'startedAt': startedAt,
+        'submittedAt': submittedAt
+      };
 
   /// The id of the message
   /// @type {string}
@@ -350,11 +370,11 @@ class MessageInfo {
 
   /// The message processing start date-time
   /// @type {string}
-  String startedAt;
+  String? startedAt;
 
   /// The message processing complete date-time
   /// @type {string}
-  String completedAt;
+  String? completedAt;
 
   /// The status of the message. When the message is submitted to the queue, it
   /// is in `pending` status. When the message is being processed, its status
@@ -366,7 +386,7 @@ class MessageInfo {
   /// Provides information about the errors occurred during processing of the
   /// message
   /// @type {object}
-  Map<String, dynamic>? errors;
+  dynamic errors;
 }
 
 enum MessageStatus { pending, processing, completed, errors }
@@ -385,17 +405,31 @@ class TaskInfo {
       required this.taskId,
       required this.triggeredAt});
 
-  factory TaskInfo.fromJson(Map<String, dynamic> json) => TaskInfo(
-        errors: json['errors'] as Map<String, dynamic>?,
-        status: MessageStatus.values
-            .firstWhere((element) => element.name == json['status']),
-        startedAt: json['startedAt'] as String,
-        completedAt: json['completedAt'] as String,
-        scheduledTaskId: json['scheduledTaskId'] as String,
-        scheduledTaskName: json['scheduledTaskName'] as String,
-        taskId: json['taskId'] as String,
-        triggeredAt: json['triggeredAt'] as String,
-      );
+  factory TaskInfo.fromJson(Map<String, dynamic> json) {
+    print('task info : $json');
+    return TaskInfo(
+      errors: json['errors'] as Map<String, dynamic>?,
+      status: MessageStatus.values
+          .firstWhere((element) => element.name == json['status']),
+      startedAt: json['startedAt'] as String?,
+      completedAt: json['completedAt'] as String?,
+      scheduledTaskId: json['scheduledTaskId'] as String?,
+      scheduledTaskName: json['scheduledTaskName'] as String,
+      taskId: json['taskId'] as String,
+      triggeredAt: json['triggeredAt'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'errors': errors,
+        'status': status.name,
+        'startedAt': startedAt,
+        'completedAt': completedAt,
+        'scheduledTaskId': scheduledTaskId,
+        'scheduledTaskName': scheduledTaskName,
+        'taskId': taskId,
+        'triggeredAt': triggeredAt
+      };
 
   /// The id of the task
   /// @type {string}
@@ -403,7 +437,7 @@ class TaskInfo {
 
   /// The id of the scheduled task that is triggered
   /// @type {string}
-  String scheduledTaskId;
+  String? scheduledTaskId;
 
   /// The name of the scheduled task that is triggered
   /// @type {string}
@@ -415,11 +449,11 @@ class TaskInfo {
 
   /// The task execution start date-time
   /// @type {string}
-  String startedAt;
+  String? startedAt;
 
   /// The task execution complete date-time
   /// @type {string}
-  String completedAt;
+  String? completedAt;
 
   /// The status of the task. When the task is firts triggered, it is in
   /// `pending` status. When the task is being processed, its status changes to
@@ -1087,29 +1121,26 @@ enum FileSortField { bucketId, fileName }
 /// Defines the options available that can be set during file upload
 /// @export
 /// @interface FileUploadOptions
-abstract class FileUploadOptions {
-  FileUploadOptions(
-      {required this.contentType,
-      required this.createBucket,
-      required this.isPublic,
-      required this.onProgress});
+class FileUploadOptions extends DbOperationOptions<FileUploadOptions> {
+  const FileUploadOptions(
+      {this.contentType, this.createBucket, this.isPublic, this.onProgress});
 
   /// The `Content-Type` header value. This value needs to be specified if
   /// using a `fileBody` that is neither `Blob` nor `File` nor `FormData`,
   /// otherwise will default to `text/plain;charset=UTF-8`.
   /// @type {string}
-  String contentType;
+  final String? contentType;
 
   /// Specifies whether file is publicy accessible or not. Defaults to the
   /// bucket's privacy setting if not specified.
   /// @type {boolean}
-  bool isPublic;
+  final bool? isPublic;
 
   /// Specifies whether to create the bucket while uploading the file. If a
   /// bucket with the provided name does not exists and if `createBucket` is
   /// marked as true then creates a new bucket. Defaults to false.
   /// @type {boolean}
-  bool createBucket;
+  final bool? createBucket;
 
   /// Callback function to call during file upload.
   ///
@@ -1119,7 +1150,22 @@ abstract class FileUploadOptions {
   /// @param total Total size of file in bytes
   /// @param percentComplete Percent uploaded (an integer between 0-100),
   /// basicly `uploaded/total` rounded to the nearest integer
-  void Function(int uploaded, int total, double percentComplete) onProgress;
+  final void Function(int total, int uploaded, double percentComplete)?
+      onProgress;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'createBucket': createBucket,
+        'contentType': contentType,
+        'isPublic': isPublic
+      };
+
+  @override
+  FileUploadOptions merge(FileUploadOptions? other) => FileUploadOptions(
+      createBucket: other?.createBucket ?? createBucket,
+      contentType: other?.contentType ?? contentType,
+      onProgress: other?.onProgress ?? onProgress,
+      isPublic: other?.isPublic ?? isPublic);
 }
 
 //ignore_for_file: constant_identifier_names

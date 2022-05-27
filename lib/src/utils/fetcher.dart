@@ -73,6 +73,7 @@ class Fetcher {
         resolveType: resolveType,
         fetcher: this);
 
+
     return APIResponse(errors: res.errors, data: res.data as T?);
   }
 
@@ -123,7 +124,9 @@ class Fetcher {
 
   Future<APIResponse<T>> upload<T>(
     String path,
-    Object body, {
+    Object body,
+    String fileName,
+    String contentType, {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
     void Function(int loaded, int total, double percent)? onProgress,
@@ -132,11 +135,12 @@ class Fetcher {
       throw ClientError('invalid_request_path',
           "A valid request path with a leading slash '/' needs to be specified e.g., /path");
     }
-    var res = await handlePlatformUpload(restUrl + path, body,
+    var res = await handlePlatformUpload(
+        restUrl + path, body, fileName, contentType,
         headers: {...this.headers, ...headers ?? {}},
         query: query ?? {},
         fetcher: this,
         onProgress: onProgress);
-    return APIResponse(errors: res.errors, data: res.data as T);
+    return APIResponse(errors: res.errors, data: res.data as T?);
   }
 }

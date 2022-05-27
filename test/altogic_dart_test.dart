@@ -6,9 +6,7 @@ import 'utils/test_utils.dart';
 void main() {
   group('altogic', () {
     test('init', () async {
-      await expectLater(() async {
-        await createClient();
-      }, returnsNormally);
+      expect(createClient, returnsNormally);
       // ensure late initilizer [client] is initialized.
 
       expect(() {

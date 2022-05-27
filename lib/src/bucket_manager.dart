@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../altogic_dart.dart';
 
 /// BucketManager is primarily used to manage a bucket and its contents
@@ -164,7 +166,34 @@ class BucketManager extends APIBase {
         'bucket': _bucketNameOrId,
       });
 
-  void upload() {
-    //TODO:
-  }
+  Future<APIResponse<Map<String, dynamic>>> upload(
+          String fileName, Uint8List fileBody, [FileUploadOptions? options]) =>
+      fetcher.upload<Map<String, dynamic>>(
+          '/_api/rest/v1/storage/bucket/upload-formdata',
+          fileBody,
+          fileName,
+          options?.contentType ?? DEFAULT_FILE_OPTIONS.contentType!,
+          query: {
+            'bucket': _bucketNameOrId,
+            'fileName': fileName,
+            'options': DEFAULT_FILE_OPTIONS.merge(options).toJson(),
+          },
+          onProgress: options?.onProgress);
+
+  FileManager file(String fileNameOrId) =>
+      FileManager(_bucketNameOrId, fileNameOrId, fetcher);
+
+  Future<APIError?> deleteFiles(List<String> fileNamesOrIds) async =>
+      (await fetcher.post<dynamic>('/_api/rest/v1/storage/bucket/delete-files',
+              body: {
+            'fileNamesOrIds': fileNamesOrIds,
+            'bucket': _bucketNameOrId
+          }))
+          .errors;
 }
+
+//ignore:constant_identifier_names
+const FileUploadOptions DEFAULT_FILE_OPTIONS = FileUploadOptions(
+    contentType: 'text/plain;charset=UTF-8',
+    createBucket: false,
+    isPublic: false);

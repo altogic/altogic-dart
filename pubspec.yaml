@@ -9,5 +9,6 @@ environment:
 
 dev_dependencies:
   collection: any
+  http: any
   lints: ^2.0.0
   test: ^1.21.1

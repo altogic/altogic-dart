@@ -6,10 +6,7 @@ import 'package:test/test.dart';
 import 'utils/test_utils.dart';
 
 void main() {
-  setUp(() async {
-    await createClient();
-    return;
-  });
+  createClient();
 
   group('auth', () {
     // skipped, already signed up

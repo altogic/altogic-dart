@@ -113,6 +113,43 @@ class MediaType {
         parameters = UnmodifiableMapView(
             parameters == null ? {} : CaseInsensitiveMap.from(parameters));
 
+  factory MediaType.parse(String mediaType) =>
+      // This parsing is based on sections 3.6 and 3.7 of the HTTP spec:
+      // http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html.
+      wrapFormatException('media type', mediaType, () {
+        final scanner = StringScanner(mediaType)
+          ..scan(whitespace)
+          ..expect(token);
+        final type = scanner.lastMatch![0]!;
+        scanner
+          ..expect('/')
+          ..expect(token);
+        final subtype = scanner.lastMatch![0]!;
+        scanner.scan(whitespace);
+
+        final parameters = <String, String>{};
+        while (scanner.scan(';')) {
+          scanner
+            ..scan(whitespace)
+            ..expect(token);
+          final attribute = scanner.lastMatch![0]!;
+          scanner.expect('=');
+
+          String value;
+          if (scanner.scan(token)) {
+            value = scanner.lastMatch![0]!;
+          } else {
+            value = expectQuotedString(scanner);
+          }
+
+          scanner.scan(whitespace);
+          parameters[attribute] = value;
+        }
+
+        scanner.expectDone();
+        return MediaType(type, subtype, parameters);
+      });
+
   /// Returns a copy of this [MediaType] with some fields altered.
   ///
   /// [type] and [subtype] alter the corresponding fields. [mimeType] is parsed
@@ -181,6 +218,261 @@ class MediaType {
     });
 
     return buffer.toString();
+  }
+}
+
+List<T> parseList<T>(StringScanner scanner, T Function() parseElement) {
+  final result = <T>[];
+
+  // Consume initial empty values.
+  while (scanner.scan(',')) {
+    scanner.scan(whitespace);
+  }
+
+  result.add(parseElement());
+  scanner.scan(whitespace);
+
+  while (scanner.scan(',')) {
+    scanner.scan(whitespace);
+
+    // Empty elements are allowed, but excluded from the results.
+    if (scanner.matches(',') || scanner.isDone) continue;
+
+    result.add(parseElement());
+    scanner.scan(whitespace);
+  }
+
+  return result;
+}
+
+/// A quoted string.
+final _quotedString = RegExp(r'"(?:[^"\x00-\x1F\x7F]|\\.)*"');
+
+/// A quoted pair.
+final _quotedPair = RegExp(r'\\(.)');
+
+/// Parses a single quoted string, and returns its contents.
+///
+/// If [name] is passed, it's used to describe the expected value if it's not
+/// found.
+String expectQuotedString(
+  StringScanner scanner, {
+  String name = 'quoted string',
+}) {
+  scanner.expect(_quotedString, name: name);
+  final string = scanner.lastMatch![0]!;
+  return string
+      .substring(1, string.length - 1)
+      .replaceAllMapped(_quotedPair, (match) => match[1]!);
+}
+
+class StringScanner {
+  /// The string being scanned through.
+  final String string;
+
+  /// The current position of the scanner in the string, in characters.
+  int get position => _position;
+  set position(int position) {
+    if (position < 0 || position > string.length) {
+      throw ArgumentError('Invalid position $position');
+    }
+
+    _position = position;
+    _lastMatch = null;
+  }
+
+  int _position = 0;
+
+  /// The data about the previous match made by the scanner.
+  ///
+  /// If the last match failed, this will be `null`.
+  Match? get lastMatch {
+    // Lazily unset [_lastMatch] so that we avoid extra assignments in
+    // character-by-character methods that are used in core loops.
+    if (_position != _lastMatchPosition) _lastMatch = null;
+    return _lastMatch;
+  }
+
+  Match? _lastMatch;
+  int? _lastMatchPosition;
+
+  /// The portion of the string that hasn't yet been scanned.
+  String get rest => string.substring(position);
+
+  /// Whether the scanner has completely consumed [string].
+  bool get isDone => position == string.length;
+
+  StringScanner(this.string, {int? position}) {
+    if (position != null) this.position = position;
+  }
+
+  /// Returns the character code of the character [offset] away from [position].
+  ///
+  /// [offset] defaults to zero, and may be negative to inspect already-consumed
+  /// characters.
+  ///
+  /// This returns `null` if [offset] points outside the string. It doesn't
+  /// affect [lastMatch].
+  int? peekChar([int? offset]) {
+    offset ??= 0;
+    final index = position + offset;
+    if (index < 0 || index >= string.length) return null;
+    return string.codeUnitAt(index);
+  }
+
+  /// If the next character in the string is [character], consumes it.
+  ///
+  /// Returns whether or not [character] was consumed.
+  bool scanChar(int character) {
+    if (isDone) return false;
+    if (string.codeUnitAt(_position) != character) return false;
+    _position++;
+    return true;
+  }
+
+  /// If the next character in the string is [character], consumes it.
+  ///
+  /// If [character] could not be consumed, throws a [FormatException]
+  /// describing the position of the failure. [name] is used in this error as
+  /// the expected name of the character being matched; if it's `null`, the
+  /// character itself is used instead.
+  void expectChar(int character, {String? name}) {
+    if (scanChar(character)) return;
+
+    if (name == null) {
+      if (character == _backslash) {
+        name = r'"\"';
+      } else if (character == _doubleQuote) {
+        name = r'"\""';
+      } else {
+        name = '"${String.fromCharCode(character)}"';
+      }
+    }
+
+    _fail(name);
+  }
+
+  Never error(String message, {Match? match, int? position, int? length}) {
+    validateErrorArgs(string, match, position, length);
+
+    if (match == null && position == null && length == null) match = lastMatch;
+    position ??= match == null ? this.position : match.start;
+    length ??= match == null ? 0 : match.end - match.start;
+
+    throw const FormatException();
+  }
+
+  /// Throws a [FormatException] describing that [name] is expected at the
+  /// current position in the string.
+  Never _fail(String name) {
+    error('expected $name.', position: position, length: 0);
+  }
+
+  /// If [pattern] matches at the current position of the string, scans forward
+  /// until the end of the match.
+  ///
+  /// Returns whether or not [pattern] matched.
+  bool scan(Pattern pattern) {
+    final success = matches(pattern);
+    if (success) {
+      _position = _lastMatch!.end;
+      _lastMatchPosition = _position;
+    }
+    return success;
+  }
+
+  /// If [pattern] matches at the current position of the string, scans forward
+  /// until the end of the match.
+  ///
+  /// If [pattern] did not match, throws a [FormatException] describing the
+  /// position of the failure. [name] is used in this error as the expected name
+  /// of the pattern being matched; if it's `null`, the pattern itself is used
+  /// instead.
+  void expect(Pattern pattern, {String? name}) {
+    if (scan(pattern)) return;
+
+    if (name == null) {
+      if (pattern is RegExp) {
+        final source = pattern.pattern;
+        name = '/$source/';
+      } else {
+        name =
+            pattern.toString().replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+        name = '"$name"';
+      }
+    }
+    _fail(name);
+  }
+
+  /// If the string has not been fully consumed, this throws a
+  /// [FormatException].
+  void expectDone() {
+    if (isDone) return;
+    _fail('no more input');
+  }
+
+  /// Returns whether or not [pattern] matches at the current position of the
+  /// string.
+  ///
+  /// This doesn't move the scan pointer forward.
+  bool matches(Pattern pattern) {
+    _lastMatch = pattern.matchAsPrefix(string, position);
+    _lastMatchPosition = _position;
+    return _lastMatch != null;
+  }
+
+  /// Returns the substring of [string] between [start] and [end].
+  ///
+  /// Unlike [String.substring], [end] defaults to [position] rather than the
+  /// end of the string.
+  String substring(int start, [int? end]) {
+    end ??= position;
+    return string.substring(start, end);
+  }
+}
+
+/// Validates the arguments passed to [StringScanner.error].
+void validateErrorArgs(
+    String string, Match? match, int? position, int? length) {
+  if (match != null && (position != null || length != null)) {
+    throw ArgumentError("Can't pass both match and position/length.");
+  }
+
+  if (position != null) {
+    if (position < 0) {
+      throw RangeError('position must be greater than or equal to 0.');
+    } else if (position > string.length) {
+      throw RangeError('position must be less than or equal to the '
+          'string length.');
+    }
+  }
+
+  if (length != null && length < 0) {
+    throw RangeError('length must be greater than or equal to 0.');
+  }
+
+  if (position != null && length != null && position + length > string.length) {
+    throw RangeError('position plus length must not go beyond the end of '
+        'the string.');
+  }
+}
+
+/// Character `"`.
+const int _doubleQuote = 0x22;
+
+/// Character `\`.
+const int _backslash = 0x5C;
+
+/// Runs [body] and wraps any format exceptions it produces.
+///
+/// [name] should describe the type of thing being parsed, and [value] should be
+/// its actual value.
+T wrapFormatException<T>(String name, String value, T Function() body) {
+  try {
+    return body();
+  } on FormatException catch (error) {
+    throw FormatException(
+        'Invalid $name "$value": ${error.message}', error.source, error.offset);
   }
 }
 

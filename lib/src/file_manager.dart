@@ -13,13 +13,15 @@ class FileManager extends APIBase {
           String? newName,
           String? duplicateName,
           String? bucketNameOrId}) =>
-      fetcher.post<T>(path, body: {
-        if (newName != null) 'newName': newName,
-        if (duplicateName != null) 'duplicateName': duplicateName,
-        if (bucketNameOrId != null) 'bucketNameOrId': bucketNameOrId,
-        'file': _fileNameOrId,
-        'bucket': _bucketNameOrId
-      });
+      fetcher.post<T>(path,
+          body: {
+            if (newName != null) 'newName': newName,
+            if (duplicateName != null) 'duplicateName': duplicateName,
+            if (bucketNameOrId != null) 'bucketNameOrId': bucketNameOrId,
+            'file': _fileNameOrId,
+            'bucket': _bucketNameOrId
+          },
+          resolveType: resolveType ?? ResolveType.json);
 
   /// Check if the file exists. It returns false if file does not exist.
   ///
@@ -66,7 +68,7 @@ class FileManager extends APIBase {
   /// this method.*
   /// @returns Returns the contents of the file in a `Blob`
   Future<APIResponse<Uint8List>> download() =>
-      _call<Uint8List>('/_api/rest/v1/storage/bucket/file/make-private',
+      _call<Uint8List>('/_api/rest/v1/storage/bucket/file/download',
           resolveType: ResolveType.blob);
 
   /// Renames the file.

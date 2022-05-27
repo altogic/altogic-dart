@@ -4,7 +4,7 @@ class QueueManager extends APIBase {
   QueueManager(super.fetcher);
 
   Future<APIResponse<MessageInfo>> submitMessage(
-      String queueNameOrId, String message) async {
+      String queueNameOrId, Map<String, dynamic> message) async {
     var res = await fetcher.post<Map<String, dynamic>>('/_api/rest/v1/queue',
         body: {'queueNameOrId': queueNameOrId, 'message': message});
     return APIResponse(

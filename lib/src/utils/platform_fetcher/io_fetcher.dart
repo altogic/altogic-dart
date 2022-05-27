@@ -91,7 +91,7 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
       case ResolveType.text:
         return APIResponse(data: utf8.decode(responseBody));
       case ResolveType.blob:
-        throw UnimplementedError('');
+        return APIResponse(data: responseBody);
       case ResolveType.arraybuffer:
         return APIResponse(data: body);
     }
@@ -123,7 +123,10 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
   }
 }
 
-Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
+int _chunk = 32768;
+
+Future<APIResponse<dynamic>> handlePlatformUpload(
+    String path, Object body, String fileName, String contentType,
     {required Map<String, dynamic> query,
     required Map<String, dynamic> headers,
     void Function(int loaded, int total, double percent)? onProgress,
@@ -139,8 +142,16 @@ Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
     fileBytes = utf8.encode(body.toString()) as Uint8List;
   }
 
+  var number = (fileBytes.length / _chunk).ceil();
+
+  var fileStream = Stream.fromIterable(List.generate(
+      number,
+      (index) => fileBytes.sublist(index * _chunk,
+          index != number - 1 ? ((index + 1) * _chunk) : null)));
+
   var multiPart = MultipartRequest()
-    ..files.add(MultipartFile.fromBytes('file', fileBytes));
+    ..files.add(MultipartFile('file', fileStream, fileBytes.length,
+        filename: fileName, contentType: MediaType.parse(contentType)));
 
   var result = multiPart.finalize();
   requestStream = result[0] as ByteStream;
@@ -162,6 +173,7 @@ Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
   }
 
   headers['content-type'] = 'multipart/form-data; boundary=${result[1]}';
+
   var queryString = encodeUriParameters(query);
   var ioRequest =
       await HttpClient().openUrl('POST', Uri.parse(path + queryString));

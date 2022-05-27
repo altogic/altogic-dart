@@ -55,7 +55,7 @@ void main() {
       'create_multiple_object',
       () async {
         await createCompleter.future;
-        var created = (await db.model('test').create([
+        var created = (await db.model('test').createMany([
           {'_id': 'test2_id', 'name': 'test2', 'order': 1},
           {'_id': 'test3_id', 'name': 'test3', 'order': 2},
           {'_id': 'test4_id', 'name': 'test4', 'order': 3},
@@ -129,7 +129,6 @@ void main() {
               {'_id': id4, 'name': 'test4', 'order': 3},
             ]),
             true);
-
         readsCompleters[2].complete();
       },
     );
