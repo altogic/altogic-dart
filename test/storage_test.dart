@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:altogic_dart/altogic_dart.dart';
@@ -14,14 +15,16 @@ void main() {
     await createClientAndSignIn();
   });
 
+  var randomFileId = Random().nextInt(1 << 31);
+
   var createCompleter = Completer<void>();
 
-  var testFileName = 'my_test_file_6.html';
+  var testFileName = 'my_test_file_$randomFileId.html';
 
-  var fileContent = "${'test _ ' * 10}\n" * 10;
+  var fileContent = "${'test _ ' * 10}\n" * 15000;
   var fileBytes = utf8.encode(fileContent) as Uint8List;
 
-  test('create', () async {
+  test('create (~${(fileBytes.length / 1024).floor()} kB)', () async {
     var res = await client.storage.root.upload(
         testFileName,
         fileBytes,
@@ -37,10 +40,10 @@ void main() {
     expect(res.data!['publicPath'], isNotNull);
 
     var publicPath = res.data!['publicPath'] as String;
-
+    print('Public Path: $publicPath');
     var getRes = await get(Uri.parse(publicPath));
 
-    expect(getRes.body, "${'test _ ' * 10}\n" * 10);
+    expect(getRes.body, fileContent);
     expect(getRes.headers['content-type'], 'text/html');
 
     createCompleter.complete();

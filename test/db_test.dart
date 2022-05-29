@@ -55,28 +55,27 @@ void main() {
       'create_multiple_object',
       () async {
         await createCompleter.future;
-        var created = (await db.model('test').createMany([
+        var created = await db.model('test').createMany([
           {'_id': 'test2_id', 'name': 'test2', 'order': 1},
           {'_id': 'test3_id', 'name': 'test3', 'order': 2},
           {'_id': 'test4_id', 'name': 'test4', 'order': 3},
-        ]))
-            .cast<List<dynamic>>();
+        ]);
 
         expect(created.errors, isNull);
         expect(created.data, isNotNull);
         expect(created.data!.length, 3);
 
-        id2 = (created.data!.firstWhere((element) =>
-                (element as Map<String, dynamic>)['name'] == 'test2')
-            as Map<String, dynamic>)['_id'] as String;
+        id2 = (created.data!
+                .firstWhere((element) => element['name'] == 'test2'))['_id']
+            as String;
 
-        id3 = (created.data!.firstWhere((element) =>
-                (element as Map<String, dynamic>)['name'] == 'test3')
-            as Map<String, dynamic>)['_id'] as String;
+        id3 = (created.data!
+                .firstWhere((element) => element['name'] == 'test3'))['_id']
+            as String;
 
-        id4 = (created.data!.firstWhere((element) =>
-                (element as Map<String, dynamic>)['name'] == 'test4')
-            as Map<String, dynamic>)['_id'] as String;
+        id4 = (created.data!
+                .firstWhere((element) => element['name'] == 'test4'))['_id']
+            as String;
 
         createMultipleCompleter.complete();
       },
@@ -90,6 +89,10 @@ void main() {
         await createMultipleCompleter.future;
 
         var obj = await db.model('test').object(singleID).get();
+
+        if (obj.errors != null) {
+          print(obj.errors);
+        }
 
         expect(obj.errors, isNull);
         expect(obj.data, isNotNull);

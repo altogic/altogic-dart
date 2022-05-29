@@ -374,10 +374,12 @@ class QueryBuilder extends APIBase {
       fetcher.post<T>(path,
           body: {...map, 'query': _action.toJson(), 'model': _modelName});
 
-  Future<APIResponse<List<Map<String,dynamic>>>> createMany(List<Map<String,dynamic>> values) async {
-    var r = await _call<List<Map<String,dynamic>>>(
+  Future<APIResponse<List<Map<String, dynamic>>>> createMany(
+      List<Map<String, dynamic>> values) async {
+    var r = await _call<List<dynamic>>(
         '/_api/rest/v1/db/create', {'values': values});
-    return APIResponse(errors: r.errors, data: r.data);
+    var d = r.data?.cast<Map<String, dynamic>>();
+    return APIResponse(errors: r.errors, data: d);
   }
 
   Future<APIResponse<Map<String, dynamic>>> create(

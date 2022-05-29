@@ -405,20 +405,17 @@ class TaskInfo {
       required this.taskId,
       required this.triggeredAt});
 
-  factory TaskInfo.fromJson(Map<String, dynamic> json) {
-    print('task info : $json');
-    return TaskInfo(
-      errors: json['errors'] as Map<String, dynamic>?,
-      status: MessageStatus.values
-          .firstWhere((element) => element.name == json['status']),
-      startedAt: json['startedAt'] as String?,
-      completedAt: json['completedAt'] as String?,
-      scheduledTaskId: json['scheduledTaskId'] as String?,
-      scheduledTaskName: json['scheduledTaskName'] as String,
-      taskId: json['taskId'] as String,
-      triggeredAt: json['triggeredAt'] as String,
-    );
-  }
+  factory TaskInfo.fromJson(Map<String, dynamic> json) => TaskInfo(
+        errors: json['errors'] as Map<String, dynamic>?,
+        status: MessageStatus.values
+            .firstWhere((element) => element.name == json['status']),
+        startedAt: json['startedAt'] as String?,
+        completedAt: json['completedAt'] as String?,
+        scheduledTaskId: json['scheduledTaskId'] as String?,
+        scheduledTaskName: json['scheduledTaskName'] as String,
+        taskId: json['taskId'] as String,
+        triggeredAt: json['triggeredAt'] as String,
+      );
 
   Map<String, dynamic> toJson() => {
         'errors': errors,

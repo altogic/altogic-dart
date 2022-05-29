@@ -14,9 +14,6 @@ class TaskManager extends APIBase {
     var res =
         await fetcher.get<Map<String, dynamic>>('/_api/rest/v1/task/$taskId');
 
-
-
-
     return APIResponse(
         errors: res.errors,
         data: res.data != null ? TaskInfo.fromJson(res.data!) : null);

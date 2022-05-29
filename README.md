@@ -38,13 +38,13 @@ Section / Platform Tests
 
 | Section        | Implemented | IO      | Browser |
 |----------------|-------------|---------|---------|
-| Auth           | &#9745;     | &#9745; | &#9744; |
+| Auth           | &#9745;     | &#9745; | &#9745; |
 | Auth Providers | &#9744;     | &#9744; | &#9744; |
-| Database       | &#9745;     | &#9745; | &#9744; |
-| Storage        | &#9745;     | &#9745; | &#9744; |
-| Endpoint       | &#9745;     | &#9745; | &#9744; |
-| Queue          | &#9745;     | &#9745; | &#9744; |
-| Task           | &#9745;     | &#9745; | &#9744; |
+| Database       | &#9745;     | &#9745; | &#9745; |
+| Storage        | &#9745;     | &#9745; | &#9745; |
+| Endpoint       | &#9745;     | &#9745; | &#9745; |
+| Queue          | &#9745;     | &#9745; | &#9745; |
+| Task           | &#9745;     | &#9745; | &#9745; |
 
 
 ## TODO
@@ -52,8 +52,8 @@ Section / Platform Tests
 - [x] Write Base Implementation
 - [ ] Implement Cookie
 - [ ] Implement auth provider
-- [ ] Create local storage package for flutter
-- [ ] Test all platforms
+- [x] Create local storage package for flutter
+- [x] Test all platforms
 - [ ] Write new readme.md
 - [ ] Check all documentation
 - [ ] Publish version 1.0

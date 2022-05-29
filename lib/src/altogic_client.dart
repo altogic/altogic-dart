@@ -37,8 +37,7 @@ class AltogicClient {
 
   late Fetcher fetcher;
 
-  late ClientOptions settings;
-
+  late final ClientOptions settings;
 
   AuthManager? _authManager;
 

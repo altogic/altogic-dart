@@ -89,7 +89,9 @@ class AuthManager extends APIBase {
   Future<void> invalidateSession() async {
     await _deleteLocalData();
     fetcher.clearSession();
-    setRedirect(_singInRedirect);
+    if (_singInRedirect != null) {
+      setRedirect(_singInRedirect);
+    }
   }
 
   /// Returns the currently active session data from local storage.
@@ -172,6 +174,7 @@ class AuthManager extends APIBase {
   /// Next.js app sends when it gets an HTTP request
   /// @returns {void}
   void setSessionCookie() {
+    //TODO: Set cookie
     throw UnimplementedError();
   }
 
@@ -185,6 +188,7 @@ class AuthManager extends APIBase {
   /// Next.js app sends when it gets an HTTP request
   /// @returns {void}
   void removeSessionCookie() {
+    //TODO: Remove Cookie
     throw UnimplementedError();
   }
 
@@ -199,6 +203,7 @@ class AuthManager extends APIBase {
   /// @param  {any} res Represents the HTTP response that an Express or Next.js
   /// app sends when it gets an HTTP request
   Future<UserResult> getUserFromDBbyCookie() async {
+    //TODO: Set
     throw UnimplementedError();
   }
 
@@ -412,10 +417,8 @@ class AuthManager extends APIBase {
   /// value of the existing user record is updated.
   /// @param {string} provider
   void signInWithProvider(Provider provider) {
-    //TODO:
+    //TODO: Provider
   }
-
-  //ignore:
 
   /// If an input token is <u>not</u> provided, signs out the user from the
   /// current session, clears user and session data in local storage and

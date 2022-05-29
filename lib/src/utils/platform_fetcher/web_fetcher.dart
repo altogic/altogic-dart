@@ -7,7 +7,10 @@ import '../../altogic_dart_base.dart';
 import '../../api_response.dart';
 import '../fetcher.dart';
 import '../helpers.dart';
+import '../http_package/byte_stream.dart';
 import '../http_package/client_exception.dart';
+import '../http_package/multipart_file.dart';
+import '../http_package/multipart_request.dart';
 
 Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
     {required Map<String, dynamic> query,
@@ -43,13 +46,6 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
     if (isFormDataBody) {
       headers.remove('content-type');
     }
-    // if (onUploadProgress != null) {
-    //   xhr.upload.onLoad.listen((event) {
-    //     if (event.lengthComputable) {
-    //       onUploadProgress(event.total!, event.loaded!);
-    //     }
-    //   });
-    // }
   }
 
   var queryString = encodeUriParameters(query);
@@ -63,7 +59,7 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
       resolveTypeStr = 'text';
       break;
     case ResolveType.blob:
-      resolveTypeStr = 'blob';
+      resolveTypeStr = 'arraybuffer';
       break;
     case ResolveType.arraybuffer:
       resolveTypeStr = 'arraybuffer';
@@ -93,7 +89,13 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
     if (_responseIsOk(xhr.status)) {
       switch (resolveType) {
         case ResolveType.json:
-          var body = xhr.response as Map<String, dynamic>;
+          var body = xhr.response is List<dynamic>
+              ? (xhr.response as List<dynamic>)
+                  .map((e) => e is Map ? _adjustJson(e) : e)
+                  .toList()
+              : xhr.response is Map
+                  ? _adjustJson(xhr.response as Map<dynamic, dynamic>)
+                  : xhr.response;
           completer.complete(APIResponse(data: body));
           break;
         case ResolveType.text:
@@ -101,20 +103,41 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
           completer.complete(APIResponse(data: body));
           break;
         case ResolveType.blob:
-          resolveTypeStr = 'blob';
-          throw UnimplementedError('');
+          var body = (xhr.response as ByteBuffer).asUint8List();
+          completer.complete(APIResponse(data: body));
+          break;
         case ResolveType.arraybuffer:
-          resolveTypeStr = 'arraybuffer';
           var body = (xhr.response as ByteBuffer).asUint8List();
           completer.complete(APIResponse(data: body));
           break;
       }
     } else {
       var body = xhr.response;
-      var errResponse = (body is String
-          ? json.decode(body)
-          : (body as Map<String, dynamic>)) as Map<String, dynamic>;
-      var errors = errResponse['errors'];
+
+      dynamic errorBody;
+
+      if (body is String) {
+        errorBody = json.encode(body);
+      } else if (body is List) {
+        errorBody = body.map((e) => e is Map ? _adjustJson(e) : e).toList();
+      } else if (body is Map<dynamic, dynamic>) {
+        errorBody = _adjustJson(body);
+      } else {
+        throw Exception('Body not parsed : ${body.runtimeType} $body');
+      }
+
+      var errors = errorBody is List
+          ? errorBody.cast<Map<String, dynamic>>()
+          : (errorBody as Map<String, dynamic>)['errors'] ?? errorBody;
+
+      if (errors is List) {
+        errors = errors
+            .cast<Map<dynamic, dynamic>>()
+            .map<Map<String, dynamic>>(_adjustJson)
+            .toList();
+      } else if (errors is Map) {
+        errors = _adjustJson(errors);
+      }
 
       var invalidateCompleter = Completer<void>();
 
@@ -151,8 +174,7 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
   }));
 
   unawaited(xhr.onError.first.then((_) {
-    completer.completeError(
-        ClientException('XMLHttpRequest error.'), StackTrace.current);
+    completer.completeError(ClientException('XMLHttpRequest error.'));
   }));
 
   xhr.send(requestBody);
@@ -164,36 +186,33 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
   }
 }
 
+Map<String, dynamic> _adjustJson(Map<dynamic, dynamic> map) =>
+    map.cast<String, dynamic>().map((key, value) => MapEntry(
+        key, value is Map<dynamic, dynamic> ? _adjustJson(value) : value));
+
 Future<APIResponse<dynamic>> handlePlatformUpload(
-    String path, Object body, String fileName,
+    String path, Object body, String fileName, String contentType,
     {required Map<String, dynamic> query,
     required Map<String, dynamic> headers,
     void Function(int loaded, int total, double percent)? onProgress,
     required Fetcher fetcher}) async {
-  Object? requestBody;
+  ByteStream? requestStream;
 
-  var isFormDataBody = false;
-
-  if (body is html.FormData && html.FormData.supported) {
-    requestBody = body;
-    isFormDataBody = true;
-  } else if ((body is html.Blob || body is html.File) &&
-      html.FormData.supported) {
-    requestBody = html.FormData();
-    (requestBody as html.FormData).appendBlob('file', body as html.Blob);
-    isFormDataBody = true;
-  } else if ((body is Uint8List) && html.FormData.supported) {
-    requestBody = html.FormData();
-    (requestBody as html.FormData).appendBlob('file', html.Blob(body));
-    isFormDataBody = true;
+  Uint8List fileBytes;
+  if (body is Uint8List) {
+    fileBytes = body;
   } else {
-    requestBody = html.FormData();
-    (requestBody as html.FormData).appendBlob('file', html.Blob(body as List));
-    isFormDataBody = true;
+    fileBytes = utf8.encode(body.toString()) as Uint8List;
   }
-  if (isFormDataBody) {
-    headers.remove('content-type');
-  }
+
+  var multiPart = MultipartRequest()
+    ..files.add(MultipartFile.fromBytes('file', fileBytes,
+        filename: fileName, contentType: MediaType.parse(contentType)));
+
+  var result = multiPart.finalize();
+  requestStream = result[0] as ByteStream;
+  var requestBytes = await requestStream.toBytes();
+  headers['content-type'] = 'multipart/form-data; boundary=${result[1]}';
 
   var queryString = encodeUriParameters(query);
 
@@ -209,7 +228,7 @@ Future<APIResponse<dynamic>> handlePlatformUpload(
   var completer = Completer<APIResponse<dynamic>>();
 
   if (onProgress != null) {
-    xhr.upload.onLoad.listen((event) {
+    xhr.upload.onProgress.listen((event) {
       if (event.lengthComputable) {
         onProgress(event.total!, event.loaded!,
             (((event.loaded! / event.total!) * 100) * 100).floor() / 100);
@@ -219,7 +238,8 @@ Future<APIResponse<dynamic>> handlePlatformUpload(
 
   unawaited(xhr.onLoad.first.then((_) {
     if (_responseIsOk(xhr.status)) {
-      var body = xhr.response as Map<String, dynamic>;
+      var body =
+          (xhr.response as Map<dynamic, dynamic>).cast<String, dynamic>();
       completer.complete(APIResponse(data: body));
     } else {
       var errResponse = xhr.response as Map<String, dynamic>;
@@ -264,7 +284,7 @@ Future<APIResponse<dynamic>> handlePlatformUpload(
         ClientException('XMLHttpRequest error.'), StackTrace.current);
   }));
 
-  xhr.send(requestBody);
+  xhr.send(requestBytes);
 
   try {
     return await completer.future;

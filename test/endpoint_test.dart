@@ -60,7 +60,6 @@ void main() {
 
   /// Test DELETE method and headers
   test(skip: false, 'delete', () async {
-
     var res = await client.endpoint.delete('/test/delete',
         headers: {'testheader': 'string', 'testheader2': 10}).asMap();
 

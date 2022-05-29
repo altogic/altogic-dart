@@ -34,8 +34,8 @@ Stream<List<int>> splitToStream(Uint8List bytes) {
   var number = (bytes.length / chunk).ceil();
   return Stream.fromIterable(List.generate(
       number,
-      (index) => bytes.sublist(index * chunk,
-          index != number - 1 ? ((index + 1) * chunk) : null)));
+      (index) => bytes.sublist(
+          index * chunk, index != number - 1 ? ((index + 1) * chunk) : null)));
 }
 
 Future<Uint8List> readStream(Stream<List<int>> stream) async {

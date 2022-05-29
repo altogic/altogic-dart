@@ -1,0 +1,4 @@
+tags:
+  doNotRandomize:
+    allow_test_randomization: false
+retry: 1

@@ -73,7 +73,6 @@ class Fetcher {
         resolveType: resolveType,
         fetcher: this);
 
-
     return APIResponse(errors: res.errors, data: res.data as T?);
   }
 
