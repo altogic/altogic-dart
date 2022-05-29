@@ -1,6 +1,8 @@
 # Files and directories created by pub.
 .dart_tool/
-example/web_example/
+example/web_example/main.dart.js
+example/web_example/main.dart.js.deps
+example/web_example/main.dart.js.map
 .packages
 pubspec.lock
 
