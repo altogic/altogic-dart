@@ -18,40 +18,39 @@ const DEFAULT_UPDATE_OPTIONS =
 /// It provides the methods to get, update, delete an existing object
 /// identified by its id or create, set or append a new object.
 ///
-/// If id is provided when creatign an instance, you can use {@link get},
-/// {@link update}, {@link delete} and {@link updateFields} methods.
-/// If no id specified in constructor, you can use {@link create}, {@link set},
-/// and {@link append} methods to create a new object in the database.
+/// If id is provided when creating an instance, you can use [get], [update],
+/// [delete] and [updateFields] methods.
 ///
-/// {@link create} method is used to creat a top-level object, which does
-/// not have any parent. {@link set} method is used to set the value of an
-/// `object` field of a parent object and finally {@link append} is used to
+/// If no id specified in constructor, you can use [create], [set],
+/// and [append] methods to create a new object in the database.
+///
+/// [create] method is used to creat a top-level object, which does
+/// not have any parent. [set] method is used to set the value of an
+/// `object` field of a parent object and finally [append] is used to
 /// add a child object to an `object-list` field of a parent object.
 ///
-/// Since both {@link set} and {@link append} operate on a sub-model or
+/// Since both [set] and [append] operate on a sub-model or
 /// sub-model list object respectively, you need to pass a `parentId` as an
 /// input parameter.
-/// @export
-/// @class DBObject
 class DBObject extends APIBase {
   /// The name of the model that the db object will be operating on
-  /// @private
-  /// @type {string}
   final String _modelName;
 
   /// The unique identifier of the db object
-  /// @private
-  /// @type {string}
   final String? _id;
 
   /// Creates an instance of DBObject
-  /// @param {string} modelName The name of the model that this query builder
+  ///
+  /// [modelName] The name of the model that this query builder
   /// will be operating on
-  /// @param {Fetcher} fetcher The http client to make RESTful API calls to the
+  ///
+  /// [fetcher] The http client to make RESTful API calls to the
   /// application's execution engine
-  /// @param {string} id The unique identifier of the dbobject
-  DBObject(String modelName, Fetcher fetcher, this._id)
+  ///
+  /// [id] The unique identifier of the dbObject
+  DBObject(String modelName, Fetcher fetcher, String? id)
       : _modelName = modelName,
+        _id = id,
         super(fetcher);
 
   /// Gets the object referred to by this db object and identified by the `id`
@@ -62,11 +61,15 @@ class DBObject extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {[SimpleLookup | ComplexLookup]} lookups The list of lookups to
-  /// make (left outer join) while getting the object from the database
-  /// @param {GetOptions} options Get operation options. By default no caching
-  /// of the retrieved object in Redis store.
-  /// @returns Returns the object identified by the `id` or null if no such
+  ///
+  /// [lookups] The list of lookups to make (left outer join) while getting the
+  /// object from the database. [lookups]'s elements can be [SimpleLookup] or
+  /// [ComplexLookup].
+  ///
+  /// [options] Get operation options. By default no caching of the retrieved
+  /// object in Redis store.
+  ///
+  /// Returns the object identified by the `id` or null if no such
   /// object exists in the database
   Future<APIResponse<Map<String, dynamic>>> get(
           {List<Lookup>? lookups, GetOptions? options}) =>
@@ -89,11 +92,15 @@ class DBObject extends APIBase {
   /// > *If the client library key is set to **enforce session**,
   /// an active user session is required (e.g., user needs to be logged in)
   /// to call this method.*
-  /// @param {object} values An object that contains the fields and their
-  /// values to create in the database
-  /// @param {CreateOptions} options Create operation options. By default
-  /// no caching of the newly created object in Redis store.
-  /// @returns Returns the newly create object in the database.
+  ///
+  ///
+  /// [values] An object that contains the fields and their values to create
+  /// in the database.
+  ///
+  /// [options] Create operation options. By default no caching of the newly
+  /// created object in Redis store.
+  ///
+  /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> create(Map<String, dynamic> values,
           {CreateOptions? options}) =>
       fetcher
@@ -104,7 +111,7 @@ class DBObject extends APIBase {
       });
 
   /// Sets the **object field** value of a parent object identified by
-  /// `parentId`. This method is valid only for **sub-model objects**,
+  /// [parentId]. This method is valid only for **sub-model objects**,
   /// objects with a parent. If this method is called for a top-level
   /// model object or sub-model object-list, an error will be returned.
   ///
@@ -115,13 +122,16 @@ class DBObject extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {object} values An object that contains the fields and their
-  /// values to create in the database
-  /// @param {string} parentId the id of the parent object.
-  /// @param {SetOptions} options Create operation options. By default no
-  /// caching of the newly created object in Redis store and no top level
-  /// object return
-  /// @returns Returns the newly create object in the database.
+  ///
+  /// [values] An object that contains the fields and their
+  /// values to create in the database.
+  ///
+  /// [parentId] the id of the parent object.
+  ///
+  /// [options] Create operation options. By default no caching of the newly
+  /// created object in Redis store and no top level object return.
+  ///
+  /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> set(
           Map<String, dynamic> values, String parentId,
           {SetOptions? options}) =>
@@ -134,7 +144,7 @@ class DBObject extends APIBase {
       });
 
   /// Appends the input object to the **object list field** of a parent object
-  /// identified by `parentId`. This method is valid only for **sub-model
+  /// identified by [parentId]. This method is valid only for **sub-model
   /// object-lists**, object-lists with a parent. If this method is called
   /// for a top-level model object or sub-model object, an error will be
   /// returned.
@@ -146,13 +156,16 @@ class DBObject extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {object} values An object that contains the fields and their
-  /// values to create in the database
-  /// @param {string} parentId the id of the parent object.
-  /// @param {AppendOptions} options Create operation options. By default
-  /// no caching of the newly created object in Redis store and no top level
-  /// object return
-  /// @returns Returns the newly create object in the database.
+  ///
+  /// [values] An object that contains the fields and their values to create in
+  /// the database.
+  ///
+  /// [parentId] the id of the parent object.
+  ///
+  /// [options] Create operation options. By default no caching of the newly
+  /// created object in Redis store and no top level object return.
+  ///
+  /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> append(
           Map<String, dynamic> values, String parentId,
           {AppendOptions? options}) =>
@@ -174,13 +187,14 @@ class DBObject extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {DeleteOptions} options Delete operation options. By default
-  /// removes deleted object from Redis cache (if cached already) and no
-  /// top level object return.
-  /// @returns Returns null if the deleted object is a top-level object.
-  /// If the deleted object is a sub-model object and if `returnTop` is
-  /// set to true in {@link DeleteOptions}, it returns the updated
-  /// top-level object.
+  ///
+  /// [options] Delete operation options. By default removes deleted object from
+  /// Redis cache (if cached already) and no top level object return.
+  ///
+  ///
+  /// Returns null if the deleted object is a top-level object. If the deleted
+  /// object is a sub-model object and if `returnTop` is set to true in
+  /// [DeleteOptions], it returns the updated top-level object.
   Future<APIResponse<Map<String, dynamic>>> delete({DeleteOptions? options}) =>
       fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/delete', body: {
@@ -196,15 +210,15 @@ class DBObject extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active user
   /// session is required (e.g., user needs to be logged in) to call this
   /// method.*
-  /// @param {object} values An object that contains the fields and their
-  /// values to update in the database
-  /// @param {UpdateOptions} options Update operation options.
-  /// By default no caching of the updated object in Redis store and
-  /// no top level object return
-  /// @returns Returns the updated object in the database. If `returnTop`
-  /// is set to true in {@link UpdateOptions} and if the updated object is
-  /// a sub-model or sub-model-list object, it returns the updated top-level
-  /// object.
+  /// [values] An object that contains the fields and their values to update in
+  /// the database
+  ///
+  /// [options] Update operation options. By default no caching of the updated
+  /// object in Redis store and no top level object return.
+  ///
+  /// Returns the updated object in the database. If `returnTop` is set to true
+  /// in [UpdateOptions] and if the updated object is a sub-model or
+  /// sub-model-list object, it returns the updated top-level object.
   Future<APIResponse<Map<String, dynamic>>> update(Map<String, dynamic> values,
           {UpdateOptions? options}) =>
       fetcher
@@ -216,27 +230,29 @@ class DBObject extends APIBase {
       });
 
   /// Updates the fields of object referred to by this db object and identified
-  /// by the `id` using the input {@link FieldUpdate} instruction(s).
+  /// by the `id` using the input [FieldUpdate] instruction(s).
   ///
   /// > *If the client library key is set to **enforce session**, an active user
   /// session is required (e.g., user needs to be logged in) to call this method
-  /// @param {FieldUpdate | [FieldUpdate]} fieldUpdates Field update
-  /// instruction(s)
-  /// @param {UpdateOptions} options Update operation options. By default
-  /// no caching of the updated object in Redis store and no top level
-  /// object return
-  /// @returns Returns the updated object in the database. If `returnTop` is
-  /// set to true in {@link UpdateOptions} and if the updated object is a
+  ///
+  /// [fieldUpdates] Field update instruction(s). [fieldUpdates] can be a
+  /// [FieldUpdate] object or list of [FieldUpdate].
+  ///
+  /// [options] Update operation options. By default no caching of the updated
+  /// object in Redis store and no top level object return.
+  ///
+  /// Returns the updated object in the database. If `returnTop` is
+  /// set to true in [UpdateOptions] and if the updated object is a
   /// sub-model or sub-model-list object, it returns the updated top-level
   /// object.
-  Future<APIResponse<Map<String, dynamic>>> updateFields(dynamic updates,
+  Future<APIResponse<Map<String, dynamic>>> updateFields(dynamic fieldUpdates,
           {UpdateOptions? options}) =>
       fetcher.post<Map<String, dynamic>>(
           '/_api/rest/v1/db/object/update-fields',
           body: {
-            'updates': (updates is List<FieldUpdate>
-                    ? updates
-                    : [updates as FieldUpdate])
+            'updates': (fieldUpdates is List<FieldUpdate>
+                    ? fieldUpdates
+                    : [fieldUpdates as FieldUpdate])
                 .map((e) => e.toJson())
                 .toList(),
             'options': DEFAULT_UPDATE_OPTIONS.merge(options).toJson(),

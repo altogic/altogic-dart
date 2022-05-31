@@ -4,18 +4,15 @@ import '../altogic_dart.dart';
 /// data storage layer (Redis) speeding up data set and get operations.
 ///
 /// The values stored can be a single JSON object, an array of objects or
-/// primitive values (e.g., numbes, text, boolean). Values can be stored with
+/// primitive values (e.g., numbers, text, boolean). Values can be stored with
 /// an optional time-to-live (TTL) to automatically expire entries.
 ///
 /// You can directly store primitive values such as integers, strings, etc.,
 /// however, when you try to get them Altogic returns them wrapped in a simple
 /// object with a key named `value`. As an example if you store a text field
 /// "Hello world!" at a key named 'welcome', when you try to get the value of
-/// this key using the {@link get} method, you will receive the following
-/// response: { value: "Hellow world"}.
-///
-/// @export
-/// @class CacheManager
+/// this key using the [get] method, you will receive the following
+/// response: { value: "Hello world"}.
 class CacheManager extends APIBase {
   /// Creates an instance of CacheManager to make caching requests to your
   /// backend app.
@@ -29,7 +26,8 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {string} key The key to retrieve
+  ///
+  /// [key] The key to retrieve
   Future<APIResponse<dynamic>> get(String key) =>
       fetcher.get('/_api/rest/v1/cache?key=$key');
 
@@ -41,12 +39,15 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {string} key The key to update
-  /// @param {any} value The value to set
-  /// @param {number} ttl Time to live in seconds
+  ///
+  /// [key] The key to update
+  ///
+  /// [value] The value to set
+  ///
+  /// [ttl] Time to live in seconds
   Future<APIError?> set(String key, dynamic value, {int? ttl}) async =>
       (await fetcher.post<dynamic>('/_api/rest/v1/cache',
-              body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
+          body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
           .errors;
 
   /// Removes the specified key(s) from the cache. Irrespective of whether
@@ -55,13 +56,21 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {string | string[]} keys A single key or an array of keys (string)
+  ///
+  /// [keys] A single string key or an array of keys (string)
   /// to delete
-  Future<APIError?> delete(dynamic keys) async =>
-      (await fetcher.post<dynamic>('/_api/rest/v1/cache', body: {
-        'keys': keys is List ? keys : [keys.toString()],
-      }))
-          .errors;
+  Future<APIError?> delete(dynamic keys) async {
+    if (!(keys is String || keys is List<String>)) {
+      throw Exception(
+          '[keys] must be string or List<String>');
+    }
+
+    return (await fetcher.post<dynamic>('/_api/rest/v1/cache', body: {
+      'keys': keys is List ? keys : [keys.toString()],
+    }))
+        .errors;
+  }
+
 
   /// Increments the value of the number stored at the key by the increment
   /// amount. If increment amount not specified, increments the number stored
@@ -73,12 +82,16 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {string} key The key to increment
-  /// @param {number} [increment=1] The amount to increment the value by
-  /// @param {number} ttl Time to live in seconds
-  /// @returns Returns the value of key after the increment
+  ///
+  /// [key] The key to increment
+  ///
+  /// [increment] The amount to increment the value by. Default 1.
+  ///
+  /// [ttl] Time to live in seconds
+  ///
+  /// Returns the value of key after the increment
   Future<APIResponse<Map<String, dynamic>>> increment(String key,
-          [int increment = 1, int? ttl]) =>
+      [int increment = 1, int? ttl]) =>
       fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/increment',
           body: {
             'key': key,
@@ -96,12 +109,16 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {string} key The key to decrement
-  /// @param {number} [decrement=1] The amount to decrement the value by
-  /// @param {number} ttl Time to live in seconds
-  /// @returns Returns the value of key after the decrement
+  ///
+  /// [key] The key to decrement
+  ///
+  /// [decrement] The amount to decrement the value by. Default 1
+  ///
+  /// [ttl] Time to live in seconds
+  ///
+  /// Returns the value of key after the decrement
   Future<APIResponse<Map<String, dynamic>>> decrement(String key,
-          [int decrement = 1, int? ttl]) =>
+      [int decrement = 1, int? ttl]) =>
       fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/decrement',
           body: {
             'key': key,
@@ -115,11 +132,13 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @param {string} key The key to set its expiry duration
-  /// @param {number} ttl Time to live in seconds
+  ///
+  /// [key] The key to set its expiry duration
+  ///
+  /// [ttl] Time to live in seconds
   Future<APIError?> expire(String key, int ttl) async =>
       (await fetcher.post<dynamic>('/_api/rest/v1/cache/expire',
-              body: {'key': key, 'ttl': ttl}))
+          body: {'key': key, 'ttl': ttl}))
           .errors;
 
   /// Returns the overall information about your apps cache including total
@@ -129,7 +148,8 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// @returns Returns information about your app's cache storage
+  ///
+  /// Returns information about your app's cache storage
   Future<APIResponse<Map<String, dynamic>>> getStats() =>
       fetcher.get<Map<String, dynamic>>('/_api/rest/v1/cache/stats');
 
@@ -158,14 +178,17 @@ class CacheManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call this
   /// method.*
-  /// @param {string} pattern The pattern string that will be used to filter
+  ///
+  /// [pattern] The pattern string that will be used to filter
   /// cache keys
-  /// @param {string} next The next page position cursor to paginate to the
-  /// next page. If set as `null` or `undefined`, starts the pagination from
+  ///
+  /// [next] The next page position cursor to paginate to the
+  /// next page. If set as `null`, starts the pagination from
   /// the beginning.
-  /// @returns Returns the array of matching keys, their values and the next
+  ///
+  /// Returns the array of matching keys, their values and the next
   /// cursor if there are remaining items to paginate.
-  Future<KeyListResult> listKeys(String pattern, String next) async {
+  Future<KeyListResult> listKeys(String pattern, String? next) async {
     var res = await fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/cache/list-keys',
         body: {'pattern': pattern, 'next': next});
