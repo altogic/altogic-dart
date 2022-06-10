@@ -19,7 +19,6 @@ import '../altogic_dart.dart';
 /// the default privacy setting of the `root` bucket using the
 /// [BucketManager.makePublic] or [BucketManager.makePrivate] methods.
 class StorageManager extends APIBase {
-
   /// Creates an instance of [StorageManager] to manage storage (i.e., files)
   /// of your application.
   ///
@@ -69,12 +68,14 @@ class StorageManager extends APIBase {
   /// [isPublic] The default privacy setting that will be applied to the files
   /// uploaded to this bucket.
   ///
+  /// [tags] List of string values that will be added to the bucket metadata.
+  ///
   /// Returns info about newly created bucket
   Future<APIResponse<Map<String, dynamic>>> createBucket(String name,
-      [bool isPublic = true]) async {
+      [bool isPublic = true, List<String> tags = const []]) async {
     var res = await fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/storage/create-bucket',
-        body: {'name': name, 'isPublic': isPublic});
+        body: {'name': name, 'isPublic': isPublic, 'tags': tags});
     return APIResponse(errors: res.errors, data: res.data);
   }
 
@@ -182,7 +183,7 @@ class StorageManager extends APIBase {
   /// this method.*
   ///
   /// [fileUrl] The url of the file that will be deleted
-  Future<APIError?> deleteFile(String fileUrl) async =>
+  Future<APIError?> deleteFile(String fileUrl) =>
       fetcher.post<dynamic>('/_api/rest/v1/storage/delete-file',
           body: {'fileUrl': fileUrl}).then((value) => value.errors);
 }

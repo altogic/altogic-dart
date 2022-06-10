@@ -42,14 +42,6 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
         requestBody = ByteStream.fromBytes(utf8.encode(body.toString()));
       }
     }
-
-    // if (onUploadProgress != null) {
-    //   xhr.upload.onLoad.listen((event) {
-    //     if (event.lengthComputable) {
-    //       onUploadProgress(event.total!, event.loaded!);
-    //     }
-    //   });
-    // }
   }
 
   var queryString = encodeUriParameters(query);
@@ -87,6 +79,7 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
   if (_responseIsOk(response.statusCode)) {
     switch (resolveType) {
       case ResolveType.json:
+        if (responseBody.isEmpty) return APIResponse();
         return APIResponse(data: json.decode(utf8.decode(responseBody)));
       case ResolveType.text:
         return APIResponse(data: utf8.decode(responseBody));

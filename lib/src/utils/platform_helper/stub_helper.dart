@@ -1,3 +1,3 @@
 dynamic platformGetParamValue(String param) {
-  throw UnimplementedError();
+  throw UnsupportedError('webdev only');
 }

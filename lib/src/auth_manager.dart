@@ -160,24 +160,7 @@ class AuthManager extends APIBase {
     }
   }
 
-  /// Unimplemented
-  void setSessionCookie() {
-    //TODO: Set cookie
-    throw UnimplementedError();
-  }
-
-  /// Unimplemented
-  void removeSessionCookie() {
-    //TODO: Remove Cookie
-    throw UnimplementedError();
-  }
-
-  /// Unimplemented
-  Future<UserResult> getUserFromDBbyCookie() async {
-    //TODO: Set
-    throw UnimplementedError();
-  }
-
+  /// Sign up methods wrapper.
   Future<UserSessionResult> _signUp(
       String endpoint, String inputName, String input, String password,
       [String? name]) async {
@@ -265,6 +248,7 @@ class AuthManager extends APIBase {
           [String? name]) async =>
       _signUp('signup-phone', 'phone', phone, password, name);
 
+  /// Sign in methods wrapper.
   Future<UserSessionResult> _signIn(
       String endpoint, String inputName, String input, String password) async {
     checkRequired(inputName, input);
@@ -307,7 +291,8 @@ class AuthManager extends APIBase {
   /// You cannot use this method to log in a user who has signed up with
   /// an Oauth2 provider such as Google, Facebook, Twitter etc.
   ///
-  /// [email] Email of the user<br>
+  /// [email] Email of the user
+  ///
   /// [password] Password of the user
   Future<UserSessionResult> signInWithEmail(String email, String password) =>
       _signIn('signin-email', 'email', email, password);
@@ -321,7 +306,8 @@ class AuthManager extends APIBase {
   /// settings and if the phone of the user has not been verified yet, this
   /// method will return an error message.
   ///
-  /// [phone] Phone of the user<br>
+  /// [phone] Phone of the user
+  ///
   /// [password] Password of the user
   Future<UserSessionResult> signInWithPhone(String phone, String password) =>
       _signIn('signin-phone', 'phone', phone, password);
@@ -341,7 +327,8 @@ class AuthManager extends APIBase {
   /// settings and if the phone of the user has not been verified yet, this
   /// method will return an error message.
   ///
-  /// [phone] Phone of the user <br>
+  /// [phone] Phone of the user
+  ///
   /// [code] SMS code (OTP - one time password)
   Future<UserSessionResult> signInWithCode(String phone, String code) async {
     checkRequired('phone', phone);
@@ -373,20 +360,35 @@ class AuthManager extends APIBase {
     return UserSessionResult(session: session, user: user);
   }
 
-  /// Signs in a user using the Oauth2 flow of the specified provider.
-  /// Calling this method with the name of the sign in provider will
-  /// redirect user to the relevant login page of the provider.
+  /// Signs in a user using the Oauth2 flow of the specified provider. Calling
+  /// this method with the name of the sign in provider will return a URL that
+  /// user have to redirect.
   ///
-  /// If the provider sign in completes successfully, Altogic directs
-  /// the user to the redirect URL with an access token that you can use
-  /// to fetch the authentication grants (e.g., user and session data).
+  /// If the provider sign in completes successfully, Altogic directs the user
+  /// to the redirect URL with an access token that you can use to fetch the
+  /// authentication grants (e.g., user and session data).
   ///
-  /// If this is the first time a user is using this provider then a new
-  /// user record is created in the database, otherwise the lastLoginAt field
-  /// value of the existing user record is updated.
-  void signInWithProvider(String provider) {
-    //TODO: Provider
-  }
+  /// If you are using this package with Flutter, ``signInWithProviderFlutter``
+  /// function will launch redirect URL automatically. Then, you can use the
+  /// ``handleRedirectUri`` function in `onGenerateRoute` or
+  /// `onGenerateInitialRoute` to get auth information when your application is
+  /// opened again with the redirect URL you specified in the Altogic interface.
+  ///
+  /// To access the ``signInWithProviderFlutter`` and ``handleRedirectUri``
+  /// methods, you must import the altogic_flutter package.
+  ///
+  /// If this is the first time a user is using this provider then a new user
+  /// record is created in the database, otherwise the lastLoginAt field value
+  /// of the existing user record is updated.
+  ///
+  /// [provider] can be :
+  ///   "google" |
+  ///   "facebook" |
+  ///   "twitter" |
+  ///   "discord" |
+  ///   "github"
+  String signInWithProvider(String provider) =>
+      '${fetcher.getBaseUrl()}/_auth/$provider';
 
   /// If an input token is <u>not</u> provided, signs out the user from the
   /// current session, clears user and session data in local storage and
@@ -396,8 +398,7 @@ class AuthManager extends APIBase {
   /// > An active user session is required (e.g., user needs to be logged in)
   /// to call this method.
   ///
-  /// [sessionToken] Session token which uniquely
-  /// identifies a user session
+  /// [sessionToken] Session token which uniquely identifies a user session.
   Future<APIError?> signOut({String? sessionToken}) async {
     try {
       var response = await fetcher.post<dynamic>('/_api/rest/v1/auth/signout');
@@ -490,16 +491,17 @@ class AuthManager extends APIBase {
   }
 
   /// Retrieves the authorization grants of a user using the specified input
-  /// `accessToken`. If no `accessToken` specified as input, tries to retrieve
-  /// the `accessToken` from the browser url query string parameter named
-  /// 'access_token'.
+  /// [accessToken]. If no [accessToken] specified as input, tries to retrieve
+  /// the [accessToken] from the browser url query string parameter named
+  /// 'access_token'. So on Flutter (if you don't use dart webdev),
+  /// [accessToken] cannot be null. Else, throws UnsupportedError.
   ///
   /// If successful this method also saves the user and session data to local
   /// storage and sets the **Session** header in [Fetcher]
   ///
   /// [accessToken] The access token that will be used to get
   /// the authorization grants of a user
-  Future<UserSessionResult?> getAuthGrant([String? accessToken]) async {
+  Future<UserSessionResult> getAuthGrant([String? accessToken]) async {
     var tokenStr = accessToken ?? getParamValue('access_token');
 
     var res = await fetcher.get<Map<String, dynamic>>(

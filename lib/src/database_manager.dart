@@ -45,6 +45,6 @@ class DatabaseManager extends APIBase {
   /// this method.*
   ///
   /// Returns information about your app's database
-  Future<APIResponse<Map<String, dynamic>>> getStats() =>
-      fetcher.get<Map<String, dynamic>>('/_api/rest/v1/db/stats');
+  Future<APIResponse<List<dynamic>>> getStats() =>
+      fetcher.get<List<dynamic>>('/_api/rest/v1/db/stats');
 }

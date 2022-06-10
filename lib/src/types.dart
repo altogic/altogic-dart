@@ -40,7 +40,7 @@ class User {
       };
 
   /// The unique identifier of the user
-  final String id;
+  String id;
 
   /// The authentication provider name, can be either Altogic, Google, Facebook,
   /// Twitter etc.
@@ -183,7 +183,7 @@ class ClientOptions {
   String? apiKey;
 
   /// Client storage handler to store user and session data. By default uses
-  /// Window.localStorage of the browser. If client is not a browser then you
+  /// shared_preferences. If client is not a browser then you
   /// need to provide an object with setItem(String key,String data),
   /// getItem(String key) and removeItem(String key) methods to manage user and
   /// session data storage.
@@ -236,7 +236,7 @@ class APIError implements Exception {
       'entries: ${items.join(",\n")}';
 
   ///  HTTP response code in the 100–599 range
-  int status;
+  final int status;
 
   /// Status text as reported by the server, e.g. "Unauthorized"
   String statusText;
@@ -359,8 +359,6 @@ enum MessageStatus { pending, processing, completed, errors }
 
 /// Provides info about the status of a task that is triggered for execution.
 class TaskInfo {
-
-
   /// Creates a instance of [TaskInfo]
   TaskInfo(
       {required this.status,
@@ -371,7 +369,6 @@ class TaskInfo {
       required this.scheduledTaskName,
       required this.taskId,
       required this.triggeredAt});
-
 
   /// Creates a instance of [TaskInfo] from [JsonMap].
   factory TaskInfo.fromJson(Map<String, dynamic> json) => TaskInfo(
@@ -441,7 +438,6 @@ abstract class DbOperationOptions<T> {
 
 /// Defines the options for an object read operation
 class GetOptions extends DbOperationOptions<GetOptions> {
-
   /// Creates a instance of [User]
   const GetOptions({required this.cache});
 
@@ -519,7 +515,6 @@ enum Cache {
 
 ///
 abstract class Lookup {
-
   /// Lookup abstraction.
   Map<String, dynamic> toJson();
 }
@@ -793,7 +788,6 @@ class FieldUpdate {
   /// Applicable only for basic values list fields.
   UpdateType updateType;
 
-
   /// The value that will be used during the field update. Depending on
   /// the update type the value will have different meaning.
   /// - **set:** The new value to set
@@ -980,10 +974,21 @@ class FileSortEntry {
 
 enum FileSortField { bucketId, fileName }
 
+/// [uploaded] Total bytes uploaded
+/// [total] Total size of file in bytes
+/// [percentComplete] Percent uploaded (an integer between 0-100), basically
+/// `uploaded/total` rounded to the nearest integer
+typedef OnUploadProgress = void Function(
+    int total, int uploaded, double percentComplete);
+
 /// Defines the options available that can be set during file upload
 class FileUploadOptions extends DbOperationOptions<FileUploadOptions> {
   const FileUploadOptions(
-      {this.contentType, this.createBucket, this.isPublic, this.onProgress});
+      {this.contentType,
+      this.createBucket,
+      this.isPublic,
+      this.onProgress,
+      this.tags});
 
   /// The `Content-Type` header value. This value needs to be specified if
   /// using a `fileBody` that is neither `Blob` nor `File` nor `FormData`,
@@ -999,21 +1004,20 @@ class FileUploadOptions extends DbOperationOptions<FileUploadOptions> {
   /// marked as true then creates a new bucket. Defaults to false.
   final bool? createBucket;
 
-  //ignore_for_file:comment_references
+  /// Array of string values that will be added to the file metadata.
+  final List<String>? tags;
+
   /// Callback function to call during file upload.
   ///
-  /// [uploaded] Total bytes uploaded
-  /// [total] Total size of file in bytes
-  /// [percentComplete] Percent uploaded (an integer between 0-100), basically
-  /// `uploaded/total` rounded to the nearest integer
-  final void Function(int total, int uploaded, double percentComplete)?
-      onProgress;
+  /// Look [OnUploadProgress] documentation for more details.
+  final OnUploadProgress? onProgress;
 
   @override
   Map<String, dynamic> toJson() => {
         'createBucket': createBucket,
         'contentType': contentType,
-        'isPublic': isPublic
+        'isPublic': isPublic,
+        'tags': tags
       };
 
   @override
@@ -1021,7 +1025,8 @@ class FileUploadOptions extends DbOperationOptions<FileUploadOptions> {
       createBucket: other?.createBucket ?? createBucket,
       contentType: other?.contentType ?? contentType,
       onProgress: other?.onProgress ?? onProgress,
-      isPublic: other?.isPublic ?? isPublic);
+      isPublic: other?.isPublic ?? isPublic,
+      tags: other?.tags ?? tags);
 }
 
 //ignore_for_file: constant_identifier_names

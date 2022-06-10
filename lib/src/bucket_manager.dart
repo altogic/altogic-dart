@@ -234,6 +234,83 @@ class BucketManager extends APIBase {
             'bucket': _bucketNameOrId
           }))
           .errors;
+
+  /// Adds the specified tags to bucket's metadata.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [tags] A single tag or an array of tags to add to bucket's metadata.
+  /// [tags] can be ``String`` or ``List<String>``
+  ///
+  /// Returns the updated bucket information
+  Future<APIResponse<JsonMap>> addTags(dynamic tags) {
+    assert(
+        tags is String || tags is List<String>,
+        '[tags] must be String '
+        'or List<String>');
+    return fetcher
+        .post<JsonMap>('/_api/rest/v1/storage/bucket/add-tags', body: {
+      'tags': tags,
+      'bucket': _bucketNameOrId,
+    });
+  }
+
+  /// Removes the specified tags from bucket's metadata.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [tags] A single tag or an array of tags to remove from bucket's metadata.
+  /// [tags] can be ``String`` or ``List<String>``
+  ///
+  /// Returns the updated bucket information
+  Future<APIResponse<JsonMap>> removeTags(dynamic tags) {
+    assert(
+        tags is String || tags is List<String>,
+        '[tags] must be String '
+        'or List<String>');
+    return fetcher
+        .post<JsonMap>('/_api/rest/v1/storage/bucket/remove-tags', body: {
+      'tags': tags,
+      'bucket': _bucketNameOrId,
+    });
+  }
+
+  /// Updates the overall bucket metadata (name, isPublic and tags) in a single
+  /// method call.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [newName] The new name of the bucket. `root` is a reserved name and
+  /// cannot be used.
+  ///
+  /// [isPublic] The default privacy setting that will be applied to the files
+  /// uploaded to this bucket.
+  ///
+  /// [tags] Array of string values that will be added to the bucket metadata.
+  /// [tags] can be ``String`` or ``List<String>``
+  ///
+  /// [includeFiles] Specifies whether to make each file in the bucket to have
+  /// the same privacy setting of the bucket.
+  ///
+  /// Returns the updated bucket information
+  Future<APIResponse<JsonMap>> updateInfo(
+          {required String newName,
+          required bool isPublic,
+          List<String>? tags,
+          bool includeFiles = false}) =>
+      fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/update', body: {
+        'tags': tags,
+        'newName': newName,
+        'isPublic': isPublic,
+        'includeFiles': includeFiles,
+        'bucket': _bucketNameOrId,
+      });
 }
 
 //ignore:constant_identifier_names

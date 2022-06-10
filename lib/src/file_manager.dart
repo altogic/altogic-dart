@@ -153,17 +153,18 @@ class FileManager extends APIBase {
   ///
   /// Returns the metadata of the file after replacement
   Future<APIResponse<JsonMap>> replace(Uint8List fileBody,
-      [FileUploadOptions? options]) => fetcher.upload<JsonMap>(
-        '/_api/rest/v1/storage/bucket/replace-formdata',
-        fileBody,
-        _fileNameOrId,
-        options?.contentType ?? DEFAULT_FILE_OPTIONS.contentType!,
-        query: {
-          'bucket': _bucketNameOrId,
-          'fileName': _fileNameOrId,
-          'options': DEFAULT_FILE_OPTIONS.merge(options).toJson(),
-        },
-        onProgress: options?.onProgress);
+          [FileUploadOptions? options]) =>
+      fetcher.upload<JsonMap>(
+          '/_api/rest/v1/storage/bucket/replace-formdata',
+          fileBody,
+          _fileNameOrId,
+          options?.contentType ?? DEFAULT_FILE_OPTIONS.contentType!,
+          query: {
+            'bucket': _bucketNameOrId,
+            'fileName': _fileNameOrId,
+            'options': DEFAULT_FILE_OPTIONS.merge(options).toJson(),
+          },
+          onProgress: options?.onProgress);
 
   /// Moves the file to another bucket. The file will be removed from its
   /// current bucket and will be moved to its new bucket. If there already
@@ -195,4 +196,69 @@ class FileManager extends APIBase {
   Future<APIResponse<Map<String, dynamic>>> copyTo(String bucketNameOrId) =>
       _call<Map<String, dynamic>>('/_api/rest/v1/storage/bucket/file/copy',
           bucketNameOrId: bucketNameOrId);
+
+  /// Adds the specified tags to file's metadata.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [tags] A single tag or an array of tags to add to file's metadata.
+  /// [tags] can be ``String`` or ``List<String>``
+  ///
+  /// Returns the updated file information
+  Future<APIResponse<JsonMap>> addTags(dynamic tags) {
+    assert(
+        tags is String || tags is List<String>,
+        '[tags] must be String '
+        'or List<String>');
+    return fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/add-tags',
+        body: {'tags': tags, 'bucket': _bucketNameOrId, 'file': _fileNameOrId});
+  }
+
+  /// Removes the specified tags from file's metadata.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [tags] A single tag or an array of tags to remove from file's metadata.
+  /// [tags] can be ``String`` or ``List<String>``
+  ///
+  /// Returns the updated file information
+  Future<APIResponse<JsonMap>> removeTags(dynamic tags) {
+    assert(
+        tags is String || tags is List<String>,
+        '[tags] must be String '
+        'or List<String>');
+    return fetcher.post<JsonMap>(
+        '/_api/rest/v1/storage/bucket/file/remove-tags',
+        body: {'tags': tags, 'bucket': _bucketNameOrId, 'file': _fileNameOrId});
+  }
+
+  /// Updates the overall file metadata (name, isPublic and tags) in a single
+  /// method call.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [newName] The new name of the file.
+  ///
+  /// [isPublic] The privacy setting of the file.
+  ///
+  /// [tags] Array of string values that will be added to the file metadata.
+  ///
+  /// Returns the updated file information
+  Future<APIResponse<JsonMap>> updateInfo(
+          {required String newName,
+          required bool isPublic,
+          List<String>? tags}) =>
+      fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/update', body: {
+        'tags': tags,
+        'newName': newName,
+        'isPublic': isPublic,
+        'bucket': _bucketNameOrId,
+        'file': _fileNameOrId
+      });
 }

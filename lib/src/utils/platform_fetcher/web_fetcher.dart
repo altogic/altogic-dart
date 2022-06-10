@@ -77,14 +77,6 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
 
   var completer = Completer<APIResponse<dynamic>>();
 
-  // if (onUploadProgress != null) {
-  //   xhr.upload.onLoad.listen((event) {
-  //     if (event.lengthComputable) {
-  //       onUploadProgress(event.total!, event.loaded!);
-  //     }
-  //   });
-  // }
-
   unawaited(xhr.onLoad.first.then((_) {
     if (_responseIsOk(xhr.status)) {
       switch (resolveType) {

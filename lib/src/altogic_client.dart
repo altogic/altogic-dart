@@ -3,11 +3,30 @@ part of altogic_dart;
 ClientOptions _defaultOptions = ClientOptions();
 
 
-
-AltogicClient createClient(){
-  throw UnimplementedError();
-}
-
+/// Creates a new client to interact with your backend application developed in
+/// Altogic. You need to specify the `envUrl` and `clientKey` to create a new
+/// client object. You can create a new environment or access your app `envUrl`
+/// from the **Environments** view and create a new `clientKey` from **App
+/// Settings/Client library** view in Altogic designer.
+///
+/// [envUrl] The base URL of the Altogic application  environment where a
+/// snapshot of the application is deployed.
+///
+/// [clientKey] The client library key of the app.
+///
+/// [options] Additional configuration parameters.
+///
+/// [ClientOptions.apiKey] A valid API key of the environment.
+///
+/// [ClientOptions.localStorage] Client storage handler to store user and
+/// session data.
+///
+/// [ClientOptions.signInRedirect] The sign in page URL to redirect the user
+/// when user's session becomes invalid.
+///
+/// Returns the newly created client instance.
+AltogicClient createClient(String envUrl, String clientKey,
+    [ClientOptions? options]) => AltogicClient(envUrl, clientKey,options);
 
 /// Dart client for interacting with your backend applications
 /// developed in Altogic.
@@ -52,19 +71,16 @@ class AltogicClient {
   /// your client key configuration, that client key can only be used to make
   /// calls to your backend from a front-end app that runs on those specific
   /// domains)
-  /// [settings] Configuration options for the api client
+  /// [options] Configuration options for the api client
   /// Throws an exception if [envUrl] is not specified or not a valid URL path
   /// or [clientKey] is not specified
-  AltogicClient(
-      {required String envUrl,
-      required String clientKey,
-      ClientOptions? settings}) {
+  AltogicClient(String envUrl, String clientKey, [ClientOptions? options]) {
     if (!(envUrl.trim().startsWith('http://') ||
         envUrl.trim().startsWith('https://'))) {
       throw ClientError('missing_required_value',
           'envUrl is a required parameter and needs to start with https://');
     }
-    this.settings = _defaultOptions._merge(settings);
+    settings = _defaultOptions._merge(options);
 
     // Set the default headers
     var headers = <String, String>{
@@ -73,8 +89,8 @@ class AltogicClient {
     };
 
     // If apiKey is provided, add it to the default headers
-    if (this.settings.apiKey != null) {
-      headers['Authorization'] = this.settings.apiKey!;
+    if (settings.apiKey != null) {
+      headers['Authorization'] = settings.apiKey!;
     }
     // Create the http client to manage RESTful API calls
     _fetcher = Fetcher(this, normalizeUrl(envUrl), headers);

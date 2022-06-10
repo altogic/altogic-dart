@@ -1,6 +1,7 @@
 import '../altogic_dart.dart';
 
 //ignore_for_file: constant_identifier_names
+//Because the package must be same as altogic npm client library.
 const DEFAULT_GET_OPTIONS = GetOptions(cache: Cache.nocache);
 const DEFAULT_CREATE_OPTIONS = CreateOptions(cache: Cache.nocache);
 const DEFAULT_SET_OPTIONS = SetOptions(cache: Cache.nocache, returnTop: false);
@@ -11,8 +12,6 @@ const DEFAULT_DELETE_OPTIONS =
     DeleteOptions(removeFromCache: true, returnTop: false);
 const DEFAULT_UPDATE_OPTIONS =
     UpdateOptions(cache: Cache.nocache, returnTop: false);
-
-// const DEFAULT_UPDATE_OPTIONS = {cache: "nocache", returnTop: false};
 
 /// References an object stored in a specific model of your application.
 /// It provides the methods to get, update, delete an existing object
