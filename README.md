@@ -1,6 +1,6 @@
 # Altogic Client Library
 
-Javascript client for Altogic backend apps.
+Dart client for Altogic backend apps.
 
 [Altogic](https://altogic.com) is a **backend application development and execution platform**, enabling people and
 businesses to design, deploy and manage scalable applications. It simplifies application development by eliminating
