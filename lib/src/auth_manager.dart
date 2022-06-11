@@ -141,10 +141,10 @@ class AuthManager extends APIBase {
   /// When you use custom authentication logic in your apps, you need to
   /// call this service to update session data so that your calls to your
   /// app endpoints that require a valid session token do not fail.
-  void setSession(Session session) {
+  Future<void> setSession(Session session) async {
     fetcher.setSession(session);
     if (_localStorage != null) {
-      _localStorage!.setItem('session', json.encode(session.toJson()));
+      await _localStorage!.setItem('session', json.encode(session.toJson()));
     }
   }
 
@@ -154,9 +154,9 @@ class AuthManager extends APIBase {
   ///
   /// However, if you have not used the *signUp* or *signIn* methods of this
   /// client library, this method enables you to update locally stored user data
-  void setUser(User user) {
+  Future<void> setUser(User user) async {
     if (_localStorage != null) {
-      _localStorage!.setItem('user', json.encode(user.toJson()));
+      await _localStorage!.setItem('user', json.encode(user.toJson()));
     }
   }
 

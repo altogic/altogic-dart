@@ -4,7 +4,7 @@ part of altogic_dart;
 class User {
   /// Creates a instance of [User]
   User(this.id,
-      {required this.email,
+      {required this.mailOrPhone,
       required this.provider,
       required this.providerUserId,
       required this.lastLoginAt,
@@ -18,7 +18,7 @@ class User {
         json['_id'] as String,
         provider: json['provider'] as String,
         providerUserId: json['providerUserId'] as String,
-        email: json['email'] as String,
+        mailOrPhone: (json['email'] as String?) ?? (json['phone'] as String),
         password: json['password'] as String?,
         profilePicture: json['profilePicture'] as String?,
         name: json['name'] as String?,
@@ -31,7 +31,7 @@ class User {
         '_id': id,
         'provider': provider,
         'providerUserId': providerUserId,
-        'email': email,
+        'email': mailOrPhone,
         if (password != null) 'password': password,
         if (profilePicture != null) 'profilePicture': profilePicture,
         if (name != null) 'name': name,
@@ -53,7 +53,7 @@ class User {
   String providerUserId;
 
   /// Users email address
-  String email;
+  String mailOrPhone;
 
   /// Users password, valid only if Altogic is used as the authentication
   /// provider.

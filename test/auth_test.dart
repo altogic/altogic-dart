@@ -24,7 +24,7 @@ void main() {
 
       expect(signUp.user, isNotNull);
 
-      expect(signUp.user?.email, 'testmail3@example.com');
+      expect(signUp.user?.mailOrPhone, 'testmail3@example.com');
       expect(signUp.user?.provider, 'altogic');
       signUpCompleter.complete();
     });

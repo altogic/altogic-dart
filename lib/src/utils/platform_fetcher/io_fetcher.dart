@@ -90,7 +90,7 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
     }
   } else {
     var errorBody = responseBody.isEmpty
-        ? <String, dynamic>{}
+        ? <Map<String, dynamic>>[]
         : json.decode(utf8.decode(responseBody));
 
     var errors = errorBody is List
