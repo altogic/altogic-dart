@@ -2,7 +2,6 @@ part of altogic_dart;
 
 ClientOptions _defaultOptions = ClientOptions();
 
-
 /// Creates a new client to interact with your backend application developed in
 /// Altogic. You need to specify the `envUrl` and `clientKey` to create a new
 /// client object. You can create a new environment or access your app `envUrl`
@@ -26,7 +25,8 @@ ClientOptions _defaultOptions = ClientOptions();
 ///
 /// Returns the newly created client instance.
 AltogicClient createClient(String envUrl, String clientKey,
-    [ClientOptions? options]) => AltogicClient(envUrl, clientKey,options);
+        [ClientOptions? options]) =>
+    AltogicClient(envUrl, clientKey, options);
 
 /// Dart client for interacting with your backend applications
 /// developed in Altogic.

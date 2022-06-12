@@ -47,7 +47,7 @@ class CacheManager extends APIBase {
   /// [ttl] Time to live in seconds
   Future<APIError?> set(String key, dynamic value, {int? ttl}) async =>
       (await fetcher.post<dynamic>('/_api/rest/v1/cache',
-          body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
+              body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
           .errors;
 
   /// Removes the specified key(s) from the cache. Irrespective of whether
@@ -61,8 +61,7 @@ class CacheManager extends APIBase {
   /// to delete
   Future<APIError?> delete(dynamic keys) async {
     if (!(keys is String || keys is List<String>)) {
-      throw Exception(
-          '[keys] must be string or List<String>');
+      throw Exception('[keys] must be string or List<String>');
     }
 
     return (await fetcher.post<dynamic>('/_api/rest/v1/cache', body: {
@@ -70,7 +69,6 @@ class CacheManager extends APIBase {
     }))
         .errors;
   }
-
 
   /// Increments the value of the number stored at the key by the increment
   /// amount. If increment amount not specified, increments the number stored
@@ -91,7 +89,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the value of key after the increment
   Future<APIResponse<Map<String, dynamic>>> increment(String key,
-      [int increment = 1, int? ttl]) =>
+          [int increment = 1, int? ttl]) =>
       fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/increment',
           body: {
             'key': key,
@@ -118,7 +116,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the value of key after the decrement
   Future<APIResponse<Map<String, dynamic>>> decrement(String key,
-      [int decrement = 1, int? ttl]) =>
+          [int decrement = 1, int? ttl]) =>
       fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/decrement',
           body: {
             'key': key,
@@ -138,7 +136,7 @@ class CacheManager extends APIBase {
   /// [ttl] Time to live in seconds
   Future<APIError?> expire(String key, int ttl) async =>
       (await fetcher.post<dynamic>('/_api/rest/v1/cache/expire',
-          body: {'key': key, 'ttl': ttl}))
+              body: {'key': key, 'ttl': ttl}))
           .errors;
 
   /// Returns the overall information about your apps cache including total

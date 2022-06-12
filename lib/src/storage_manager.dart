@@ -72,7 +72,7 @@ class StorageManager extends APIBase {
   ///
   /// Returns info about newly created bucket
   Future<APIResponse<Map<String, dynamic>>> createBucket(String name,
-      [bool isPublic = true, List<String> tags = const []]) async {
+      {bool isPublic = true, List<String> tags = const []}) async {
     var res = await fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/storage/create-bucket',
         body: {'name': name, 'isPublic': isPublic, 'tags': tags});

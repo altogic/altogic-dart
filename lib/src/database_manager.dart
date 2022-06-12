@@ -7,8 +7,6 @@ import 'query_builder.dart';
 /// update or delete existing ones, run queries and paginate over large
 /// data sets.
 class DatabaseManager extends APIBase {
-
-
   /// Creates an instance of DatabaseManager to manage data of your application.
   /// [fetcher] The http client to make RESTful API calls to the application's
   /// execution engine.

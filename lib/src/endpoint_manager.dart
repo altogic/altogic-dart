@@ -62,8 +62,6 @@ class FutureApiResponse {
 /// a valid session object or as an input header with the name **Session**
 /// (e.g., Session: \<your session token\>) in specific methods.
 class EndpointManager extends APIBase {
-
-
   /// Creates an instance of [EndpointManager] to make http requests to your
   /// app endpoints.
   ///

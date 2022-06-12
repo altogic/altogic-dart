@@ -7,7 +7,6 @@ import '../altogic_dart.dart';
 /// Else, response is error response, [errors] will not be null, and [data] will
 /// not.
 class APIResponse<T> {
-
   /// Create [APIResponse] with generic types.
   APIResponse({this.data, this.errors});
 
@@ -24,7 +23,6 @@ class APIResponse<T> {
 /// Hold [User] and [Session].
 /// Same as [APIResponse], If response success, [errors] will be null.
 class UserSessionResult {
-
   ///
   UserSessionResult({this.user, this.session, this.errors});
 
@@ -37,7 +35,6 @@ class UserSessionResult {
   /// Response [errors].
   APIError? errors;
 }
-
 
 class UserResult {
   UserResult({this.user, this.errors});

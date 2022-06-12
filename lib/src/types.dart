@@ -748,44 +748,6 @@ class FieldUpdate {
   String field;
 
   /// Defines how the field will be updated.
-  /// - **set:** Sets (overwrites) the value of a field. Applicable on all
-  /// fields, except system managed `_id`, `_parent`, `createdAt`, `updatedAt`
-  /// fields.
-  ///
-  /// - **unset:** Clears the value of a field. Applicable on all fields,
-  /// except system managed `_id`, `_parent`, `createdAt`, `updatedAt` fields.
-  ///
-  /// - **increment:** Increments the value of a numeric field by the specified
-  /// amount. Applicable only for integer and decimal fields.
-  ///
-  /// - **decrement:** Decrements the value of a numeric field by the specified
-  /// amount. Applicable only for integer and decimal fields.
-  ///
-  /// - **min:** Assigns the minimum of the specified value or the field value.
-  /// If the specified value is less than the current field value, sets the
-  /// field value to the specificied value, otherwise does not make any changes.
-  /// Applicable only for integer and decimal fields.
-  ///
-  /// - **max:** Assigns the maximum of the specified value or the field value.
-  /// If the specified value is greater than the current field value, sets the
-  /// field value to the specificied value, otherwise does not make any changes.
-  /// Applicable only for integer and decimal fields.
-  ///
-  /// - **multiply:** Multiplies the current value of the field with the
-  /// specified amount and sets the field value to teh multiplication result.
-  /// Applicable only for integer and decimal fields.
-  ///
-  /// - **pull:** Removes the specified value from a basic values list.
-  /// Applicable only for basic values list fields.
-  ///
-  /// - **push:** Adds the specified value to a basic values list. Applicable
-  /// only for basic values list fields.
-  ///
-  /// - **pop:** Removes the last element from a basic values list. Applicable
-  /// only for basic values list fields.
-  ///
-  /// - **shift:** Removes the first element from a basic values list.
-  /// Applicable only for basic values list fields.
   UpdateType updateType;
 
   /// The value that will be used during the field update. Depending on
@@ -804,8 +766,57 @@ class FieldUpdate {
   dynamic value;
 }
 
-///
-enum UpdateType { set, unset }
+/// Defines how the field will be updated.
+enum UpdateType {
+  /// Sets (overwrites) the value of a field. Applicable on all  fields, except
+  /// system managed `_id`, `_parent`, `createdAt`, `updatedAt` fields.
+  set,
+
+  /// Clears the value of a field. Applicable on all fields, except system
+  /// managed `_id`, `_parent`, `createdAt`, `updatedAt` fields.
+  unset,
+
+  /// Increments the value of a numeric field by the specified amount.
+  /// Applicable only for integer and decimal fields.
+  increment,
+
+  /// Decrements the value of a numeric field by the specified amount.
+  /// Applicable only for integer and decimal fields.
+  decrement,
+
+  /// Assigns the minimum of the specified value or the field value. If the
+  /// specified value is less than the current field value, sets the field value
+  /// to the specificied value, otherwise does not make any changes. Applicable
+  /// only for integer and decimal fields.
+  min,
+
+  /// Assigns the maximum of the specified value or the field value. If the
+  /// specified value is greater than the current field value, sets the field
+  /// value to the specificied value, otherwise does not make any changes.
+  /// Applicable only for integer and decimal fields.
+  max,
+
+  /// Multiplies the current value of the field with the specified amount and
+  /// sets the field value to teh multiplication result. Applicable only for
+  /// integer and decimal fields.
+  multiply,
+
+  /// Removes the specified value from a basic values list. Applicable only for
+  /// basic values list fields.
+  pull,
+
+  /// Adds the specified value to a basic values list. Applicable only for
+  /// basic values list fields.
+  push,
+
+  /// Removes the last element from a basic values list. Applicable only for
+  /// basic values list fields.
+  pop,
+
+  /// Removes the first element from a basic values list. Applicable only for
+  /// basic values list fields.
+  shift
+}
 
 /// Defines the structure of the response of a multi-object update operation
 /// in the database
@@ -950,7 +961,7 @@ class FileListOptions {
   int? limit;
 
   /// Specifies the field name and sort direction for sorting returned files
-  FileSortEntry? sort;
+  FileSort? sort;
 
   /// Flag to specify whether to return the count and pagination information
   /// such as total number of files, page number and page size
@@ -958,8 +969,8 @@ class FileListOptions {
 }
 
 /// Defines the structure of a file sort entry
-class FileSortEntry {
-  FileSortEntry({required this.field, required this.direction});
+class FileSort {
+  FileSort({required this.field, required this.direction});
 
   Map<String, dynamic> toJson() =>
       {'field': field.name, 'direction': direction.name};
@@ -972,7 +983,19 @@ class FileSortEntry {
   Direction direction;
 }
 
-enum FileSortField { bucketId, fileName }
+enum FileSortField {
+  bucketId,
+  fileName,
+  size,
+  encoding,
+  mimeType,
+  isPublic,
+  publicPath,
+  uploadedAt,
+  updatedAt,
+  userId,
+  tags
+}
 
 /// [uploaded] Total bytes uploaded
 /// [total] Total size of file in bytes

@@ -21,7 +21,6 @@ const MISSING_SESSION_TOKEN = 'missing_session_token';
 /// token to a **Session** header and sends it in all RESTful API requests to
 /// your backend app.
 class Fetcher {
-
   /// Reference to the Altogic client object
   AltogicClient apiClient;
 
@@ -47,7 +46,6 @@ class Fetcher {
   /// [headers] The default headers that will be
   /// sent in each RESTful API request to the app's execution environment
   Fetcher(this.apiClient, this.restUrl, this.headers);
-
 
   /// Internal method to handle all public request methods (get, post, put and
   /// delete). If the request response is an invalid session token error,
@@ -119,9 +117,9 @@ class Fetcher {
   /// *Blob* or *ArrayBuffer* and the errors object is marked as `null`. If the
   /// response returns no data back then both erros and data marked as `null`.
   Future<APIResponse<T>> get<T>(String path,
-      {Map<String, dynamic>? query = const {},
-        Map<String, dynamic>? headers = const {},
-        ResolveType resolveType = ResolveType.json}) =>
+          {Map<String, dynamic>? query = const {},
+          Map<String, dynamic>? headers = const {},
+          ResolveType resolveType = ResolveType.json}) =>
       _handleRequest<T>(Method.GET, path,
           resolveType: resolveType, query: query, headers: headers);
 
@@ -153,7 +151,6 @@ class Fetcher {
           ResolveType resolveType = ResolveType.json}) async =>
       _handleRequest<T>(Method.POST, path,
           query: query, headers: headers, body: body, resolveType: resolveType);
-
 
   /// Makes a PUT request to backend app execution environment.
   ///
@@ -213,7 +210,6 @@ class Fetcher {
       _handleRequest<T>(Method.DELETE, path,
           query: query, headers: headers, body: body, resolveType: resolveType);
 
-
   /// Sets the session of the user that will be used by Fetcher. Adds the new
   /// session token to the **Session** request header.
   ///
@@ -222,6 +218,7 @@ class Fetcher {
     this.session = session;
     headers['Session'] = session.token;
   }
+
   /// Clears the session info of the user from the Fetcher. Basically removes
   /// the **Session** header from the default request headers until a new
   /// session value is provided.
@@ -230,11 +227,8 @@ class Fetcher {
     headers.remove('Session');
   }
 
-
-
   /// Returns the api base url string.
   String getBaseUrl() => restUrl;
-
 
   /// Uploads a file object instead of fetcher in order to track upload
   /// progress and call a callback function.

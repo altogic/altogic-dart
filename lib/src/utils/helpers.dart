@@ -27,7 +27,6 @@ void checkRequired(String fieldName, dynamic fieldValue,
   }
 }
 
-
 String encodeUriParameters(Map<String, dynamic> queryParameters) {
   var queryString = Uri(queryParameters: queryParameters.map((key, value) {
     if (value is Map || value is List) {

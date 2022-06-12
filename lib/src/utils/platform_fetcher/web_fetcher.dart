@@ -14,10 +14,10 @@ import '../http_package/multipart_request.dart';
 
 Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
     {required Map<String, dynamic> query,
-      required Map<String, dynamic> headers,
-      Object? body,
-      ResolveType resolveType = ResolveType.json,
-      required Fetcher fetcher}) async {
+    required Map<String, dynamic> headers,
+    Object? body,
+    ResolveType resolveType = ResolveType.json,
+    required Fetcher fetcher}) async {
   Object? requestBody;
 
   if (body != null) {
@@ -83,11 +83,11 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
         case ResolveType.json:
           var body = xhr.response is List<dynamic>
               ? (xhr.response as List<dynamic>)
-              .map((e) => e is Map ? _adjustJson(e) : e)
-              .toList()
+                  .map((e) => e is Map ? _adjustJson(e) : e)
+                  .toList()
               : xhr.response is Map
-              ? _adjustJson(xhr.response as Map<dynamic, dynamic>)
-              : xhr.response;
+                  ? _adjustJson(xhr.response as Map<dynamic, dynamic>)
+                  : xhr.response;
           completer.complete(APIResponse(data: body));
           break;
         case ResolveType.text:
@@ -144,9 +144,9 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
           errors is List &&
           errors
               .where((element) =>
-          element is Map<String, dynamic> &&
-              (element['code'] == INVALID_SESSION_TOKEN ||
-                  element['code'] == MISSING_SESSION_TOKEN))
+                  element is Map<String, dynamic> &&
+                  (element['code'] == INVALID_SESSION_TOKEN ||
+                      element['code'] == MISSING_SESSION_TOKEN))
               .isNotEmpty) {
         fetcher.apiClient.auth.invalidateSession().then((value) {
           invalidateCompleter.complete();
@@ -186,16 +186,15 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
 }
 
 Map<String, dynamic> _adjustJson(Map<dynamic, dynamic> map) =>
-    map.cast<String, dynamic>().map((key, value) =>
-        MapEntry(
-            key, value is Map<dynamic, dynamic> ? _adjustJson(value) : value));
+    map.cast<String, dynamic>().map((key, value) => MapEntry(
+        key, value is Map<dynamic, dynamic> ? _adjustJson(value) : value));
 
-Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
-    String fileName, String contentType,
+Future<APIResponse<dynamic>> handlePlatformUpload(
+    String path, Object body, String fileName, String contentType,
     {required Map<String, dynamic> query,
-      required Map<String, dynamic> headers,
-      void Function(int loaded, int total, double percent)? onProgress,
-      required Fetcher fetcher}) async {
+    required Map<String, dynamic> headers,
+    void Function(int loaded, int total, double percent)? onProgress,
+    required Fetcher fetcher}) async {
   ByteStream? requestStream;
 
   Uint8List fileBytes;
@@ -239,7 +238,7 @@ Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
   unawaited(xhr.onLoad.first.then((_) {
     if (_responseIsOk(xhr.status)) {
       var body =
-      (xhr.response as Map<dynamic, dynamic>).cast<String, dynamic>();
+          (xhr.response as Map<dynamic, dynamic>).cast<String, dynamic>();
       completer.complete(APIResponse(data: body));
     } else {
       var errResponse = xhr.response as Map<String, dynamic>;
@@ -251,9 +250,9 @@ Future<APIResponse<dynamic>> handlePlatformUpload(String path, Object body,
           errors is List &&
           errors
               .where((element) =>
-          element is Map<String, dynamic> &&
-              (element['code'] == INVALID_SESSION_TOKEN ||
-                  element['code'] == MISSING_SESSION_TOKEN))
+                  element is Map<String, dynamic> &&
+                  (element['code'] == INVALID_SESSION_TOKEN ||
+                      element['code'] == MISSING_SESSION_TOKEN))
               .isNotEmpty) {
         fetcher.apiClient.auth.invalidateSession().then((value) {
           invalidateCompleter.complete();
