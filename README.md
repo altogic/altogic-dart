@@ -26,11 +26,13 @@ And import it
 import 'package:altogic-dart/altogic-dart.dart';
 ````
 
-## Quick start
+Then you can use it from a global `altogic` variable:
 
-This guide will show you how to use the key modules of the client library to execute commands in your backend app. For
-more in-depth coverage, see the
-[Client API reference](https://clientapi.altogic.com/v1.3.1/modules.html).
+
+````dart
+AltogicClient altogic = createClient('http://fqle-avzr.c1-na.altogic.com', 'client-key');
+````
+
 
 ## Tested
 
@@ -39,24 +41,29 @@ Section / Platform Tests
 | Section        | Implemented | IO      | Browser |
 |----------------|-------------|---------|---------|
 | Auth           | &#9745;     | &#9745; | &#9745; |
-| Auth Providers | &#9744;     | &#9744; | &#9744; |
+| Auth Providers | &#9745;     | &#9745; | &#9745; |
 | Database       | &#9745;     | &#9745; | &#9745; |
 | Storage        | &#9745;     | &#9745; | &#9745; |
 | Endpoint       | &#9745;     | &#9745; | &#9745; |
 | Queue          | &#9745;     | &#9745; | &#9745; |
 | Task           | &#9745;     | &#9745; | &#9745; |
 
-
 ## TODO
 
 - [x] Write Base Implementation
 - [ ] Implement Cookie
-- [ ] Implement auth provider
+- [x] Implement auth provider
 - [x] Create local storage package for flutter
 - [x] Test all platforms
 - [ ] Write new readme.md
-- [ ] Check all documentation
+- [x] Check all documentation
 - [ ] Publish version 1.0
+
+## Quick start
+
+This guide will show you how to use the key modules of the client library to execute commands in your backend app. For
+more in-depth coverage, see the
+[Client API reference](https://pub.dev/documentation/altogic_dart/latest/).
 
 ### Authentication
 
@@ -79,11 +86,20 @@ authFunctions() async {
     // success
   }
 
+  // After the users are created and their email verified, the next time the users wants to sign in to their account, you can use the sign in method to authenticate them
+  var userSession = await altogic.auth.signInWithEmail(email, password);
+
+  // You can check errors. If ``errors`` is null, signIn is success. 
+  if (userSession.errors != null) {
+    // success
+    var user = userSession.user;
+    var session = userSession.session;
+  } else {
+    // Error
+  }
+
   //... after email address verified, you can get user and session data using the accessToken
   var authGrant = await altogic.auth.getAuthGrant(accessToken);
-
-  //After the users are created and their email verified, the next time the users wants to sign in to their account, you can use the sign in method to authenticate them
-  var userSession = await altogic.auth.signInWithEmail(email, password);
 }
 ```
 
@@ -101,14 +117,17 @@ authFunction() async {
     // success
   }
 
-//Verify the phone number using code sent in SMS and and return the auth grants (e.g., session)
-  var userSession = await altogic.auth.verifyPhone(phone, code);
+  //Verify the phone number using code sent in SMS and and return the auth grants (e.g., session)
+  UserSessionResult userSession = await altogic.auth.verifyPhone(phone, code);
 
-//After the users are created and their phones numbers are verified, the next time the users wants to sign in to their account, you can use the sign in method to authenticate them
-  var errors = await altogic.auth.signInWithPhone(phone, password);
+  //The next time, the users wants to sign in to their account, you can use the sign in method to authenticate them
+  UserSessionResult userSession = await altogic.auth.signInWithPhone(phone, password);
 }
 ```
 
+#### **Sign up/sign-in users with an oAuth provider:**
+
+See [altogic_flutter](https://pub.dev/packages/altogic_flutter) package.
 
 ### Database
 
@@ -127,10 +146,57 @@ createObject() async {
     createdAt: '2022-02-09T10:55:34.562+00:00',
   });
 
+  // Or you can use `createMany` to create multiple object(s).
+
   if (response != null) {
     //success
-    print(response.data);
+    print(response.data); // created object
   }
+}
+```
+
+Or you can use an object manager:
+
+```dart
+createObject() async {
+  //Insert a new top-level model object to the database using the object manager
+  var response = await altogic.db.model('userOrders').object().create({
+    productId: 'prd000234',
+    quantity: 12,
+    customerId: '61fbf6ceeeed063ab062ac05',
+    createdAt: '2022-02-09T10:55:34.562+00:00',
+  });
+
+  if (response != null) {
+    //success
+    print(response.data); // created object
+  }
+}
+```
+
+#### **Update an object:**
+
+You can use two ways to update an object in the database. You can use an object manager shown below to update an object.
+
+```dart
+updateObject() async {
+  //Upates a users address identified by '61f958dc3692b8462a9d31a1' to a new one
+  var result = await altogic.db
+      .model('users.address')
+      .object('61f958dc3692b8462a9d31a1')
+      .update({
+    city: 'Chicago',
+    street: '1234 W Chestnut',
+    zipcode: '60610',
+    state: 'IL',
+    country: 'US',
+  });
+
+//Increments the likeCount of a wallpost identified by id '62064c7eff64b91975a599b4' by 1
+  var result = await altogic.db
+      .model('wallposts')
+      .object('62064c7eff64b91975a599b4')
+      .updateFields({ field: 'likeCount', updateType: 'increment', value: 1});
 }
 ```
 
