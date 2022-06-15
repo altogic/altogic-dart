@@ -332,6 +332,7 @@ uploadFile() async {
 
 #### **List files in a bucket:**
 
+
 ```dart
 listFiles() async {
   //Returns the list of files in bucket profile-images sorted by their size in ascending order

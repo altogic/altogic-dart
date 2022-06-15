@@ -1,20 +1,24 @@
 import '../altogic_dart.dart';
 
+abstract class APIResponseBase {
+  APIResponseBase({this.errors});
+
+  /// Response [errors].
+  APIError? errors;
+}
+
 /// All API request returns a [APIResponse].
 ///
 /// If response is success, [errors] will be null and [data] will not.
 ///
 /// Else, response is error response, [errors] will not be null, and [data] will
 /// not.
-class APIResponse<T> {
+class APIResponse<T> extends APIResponseBase {
   /// Create [APIResponse] with generic types.
-  APIResponse({this.data, this.errors});
+  APIResponse({this.data, super.errors});
 
   /// Response data.
   T? data;
-
-  /// Response errors
-  APIError? errors;
 
   /// Type cast for [data]
   APIResponse<R> cast<R>() => APIResponse<R>(data: data as R?, errors: errors);
@@ -22,38 +26,32 @@ class APIResponse<T> {
 
 /// Hold [User] and [Session].
 /// Same as [APIResponse], If response success, [errors] will be null.
-class UserSessionResult {
+class UserSessionResult extends APIResponseBase {
   ///
-  UserSessionResult({this.user, this.session, this.errors});
+  UserSessionResult({this.user, this.session, super.errors});
 
   /// Response [user].
   User? user;
 
   /// Response [session].
   Session? session;
-
-  /// Response [errors].
-  APIError? errors;
 }
 
-class UserResult {
-  UserResult({this.user, this.errors});
+class UserResult extends APIResponseBase {
+  UserResult({this.user, super.errors});
 
   User? user;
-  APIError? errors;
 }
 
-class SessionResult {
-  SessionResult({this.sessions, this.errors});
+class SessionResult extends APIResponseBase {
+  SessionResult({this.sessions, super.errors});
 
   List<Session>? sessions;
-  APIError? errors;
 }
 
-class KeyListResult {
-  KeyListResult({this.errors, this.next, this.data});
+class KeyListResult extends APIResponseBase {
+  KeyListResult({super.errors, this.next, this.data});
 
   List<Map<String, dynamic>>? data;
   String? next;
-  APIError? errors;
 }

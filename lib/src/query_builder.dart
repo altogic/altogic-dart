@@ -893,6 +893,7 @@ class QueryBuilder extends APIBase {
   /// this method.*
   ///
   /// [text] The search string
+  ///
   /// [returnCountInfo] Flag to specify whether to return the count and
   /// pagination information such as total number of objects matched, page
   /// number and page size
