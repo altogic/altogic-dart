@@ -1,4 +1,4 @@
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 /// A Map<String,dynamic> type.
 typedef JsonMap = Map<String, dynamic>;

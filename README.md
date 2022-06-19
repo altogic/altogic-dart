@@ -8,7 +8,7 @@ repetitive tasks, providing pre-integrated and ready-to-use execution environmen
 application development process.
 
 For detailed API documentation go to
-[Client API reference](https://clientapi.altogic.com/v1.3.1/modules.html)
+[Client API reference](https://pub.dev/documentation/altogic_dart/latest/)
 
 ## Installation
 
@@ -17,13 +17,13 @@ if you will be using the Authentication module of this library, you might need t
 app settings.
 
 ````commandline
-dart pub add altogic-dart
+dart pub add altogic_dart
 ````
 
 And import it
 
 ````dart
-import 'package:altogic-dart/altogic-dart.dart';
+import 'package:altogic_dart/altogic_dart.dart';
 ````
 
 Then you can use it from a global `altogic` variable:

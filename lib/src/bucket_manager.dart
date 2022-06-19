@@ -302,7 +302,7 @@ class BucketManager extends APIBase {
   Future<APIResponse<JsonMap>> updateInfo(
           {required String newName,
           required bool isPublic,
-          List<String>? tags,
+          List<String> tags = const [],
           bool includeFiles = false}) =>
       fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/update', body: {
         'tags': tags,

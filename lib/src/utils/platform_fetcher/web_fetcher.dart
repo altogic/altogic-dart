@@ -241,7 +241,7 @@ Future<APIResponse<dynamic>> handlePlatformUpload(
           (xhr.response as Map<dynamic, dynamic>).cast<String, dynamic>();
       completer.complete(APIResponse(data: body));
     } else {
-      var errResponse = xhr.response as Map<String, dynamic>;
+      var errResponse = xhr.response as Map<dynamic, dynamic>;
       var errors = errResponse['errors'];
 
       var invalidateCompleter = Completer<void>();
@@ -270,7 +270,8 @@ Future<APIResponse<dynamic>> handlePlatformUpload(
                 status: xhr.status!,
                 statusText: xhr.statusText!,
                 items: ((errors is List) ? errors : [errors])
-                    .map((e) => ErrorEntry.fromJson(e as Map<String, dynamic>))
+                    .map((e) => ErrorEntry.fromJson(
+                        (e as Map<dynamic, dynamic>).cast<String, dynamic>()))
                     .toList())));
       }).onError((error, stackTrace) {
         completer.completeError(error!);

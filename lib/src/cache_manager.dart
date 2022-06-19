@@ -1,4 +1,4 @@
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 /// The cache manager provides simple key-value storage at a high-speed
 /// data storage layer (Redis) speeding up data set and get operations.
@@ -28,8 +28,8 @@ class CacheManager extends APIBase {
   /// this method.*
   ///
   /// [key] The key to retrieve
-  Future<APIResponse<dynamic>> get(String key) =>
-      fetcher.get('/_api/rest/v1/cache?key=$key');
+  Future<APIResponse<JsonMap>> get(String key) =>
+      fetcher.get<Map<String, dynamic>>('/_api/rest/v1/cache?key=$key');
 
   /// Sets an item in the cache. Overwrites any existing value already set.
   /// If **ttl** specified, sets the stored entry to automatically expire
