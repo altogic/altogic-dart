@@ -890,7 +890,7 @@ abstract class GroupComputation {
       {required this.name,
       required this.type,
       required this.expression,
-       this.sort});
+      this.sort});
 
   Map<String, dynamic> toJson() => {
         'name': name,
