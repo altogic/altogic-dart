@@ -128,8 +128,7 @@ class FileManager extends APIBase {
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
   Future<APIError?> delete() async =>
-      (await _call<dynamic>('/_api/rest/v1/storage/bucket/file/duplicate'))
-          .errors;
+      (await _call<dynamic>('/_api/rest/v1/storage/bucket/file/delete')).errors;
 
   /// Replaces an existing file with another. It keeps the name of the file but
   /// replaces file contents, size, encoding and mime-type with the newly

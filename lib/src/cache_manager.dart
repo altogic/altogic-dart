@@ -28,8 +28,10 @@ class CacheManager extends APIBase {
   /// this method.*
   ///
   /// [key] The key to retrieve
-  Future<APIResponse<JsonMap>> get(String key) =>
-      fetcher.get<Map<String, dynamic>>('/_api/rest/v1/cache?key=$key');
+  FutureApiResponse get(String key) => FutureApiResponse._(fetcher
+      .get<Map<String, dynamic>>('/_api/rest/v1/cache?key=$key')
+      .then((value) =>
+          APIResponse(errors: value.errors, data: value.data?['value'])));
 
   /// Sets an item in the cache. Overwrites any existing value already set.
   /// If **ttl** specified, sets the stored entry to automatically expire
@@ -45,7 +47,7 @@ class CacheManager extends APIBase {
   /// [value] The value to set
   ///
   /// [ttl] Time to live in seconds
-  Future<APIError?> set(String key, dynamic value, {int? ttl}) async =>
+  Future<APIError?> set(String key, Object value, {int? ttl}) async =>
       (await fetcher.post<dynamic>('/_api/rest/v1/cache',
               body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
           .errors;
@@ -64,7 +66,7 @@ class CacheManager extends APIBase {
       throw Exception('[keys] must be string or List<String>');
     }
 
-    return (await fetcher.post<dynamic>('/_api/rest/v1/cache', body: {
+    return (await fetcher.delete<dynamic>('/_api/rest/v1/cache', body: {
       'keys': keys is List ? keys : [keys.toString()],
     }))
         .errors;
@@ -186,7 +188,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the array of matching keys, their values and the next
   /// cursor if there are remaining items to paginate.
-  Future<KeyListResult> listKeys(String pattern, String? next) async {
+  Future<KeyListResult> listKeys(String? pattern, String? next) async {
     var res = await fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/cache/list-keys',
         body: {'pattern': pattern, 'next': next});

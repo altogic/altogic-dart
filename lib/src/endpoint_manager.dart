@@ -28,6 +28,14 @@ class FutureApiResponse {
     return APIResponse(data: res.data?.cast<JsonMap>(), errors: res.errors);
   }
 
+  /// Get response as ``APIResponse<String>``.
+  ///
+  /// If the response isn't a ``String`` throws an error.
+  Future<APIResponse<String>> asString() async {
+    var res = (await _future).cast<String>();
+    return APIResponse(data: res.data, errors: res.errors);
+  }
+
   /// Get response as ``APIResponse<bool>``.
   ///
   /// If the response isn't a ``bool`` throws an error.

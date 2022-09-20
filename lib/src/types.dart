@@ -171,7 +171,8 @@ class UserAgent extends Agent {
 /// The options that can be passed to the Altogic client instance
 class ClientOptions {
   /// Creates a instance of [ClientOptions]
-  ClientOptions({this.apiKey, this.localStorage, this.signInRedirect});
+  ClientOptions(
+      {this.apiKey, this.localStorage, this.signInRedirect, this.realtime});
 
   /// The unique app environment API Key which needs to be created using the
   /// Altogic app designer. The [apiKey] is passed in *Authorization Header*
@@ -196,10 +197,41 @@ class ClientOptions {
   /// this signin url.
   String? signInRedirect;
 
+  /// The configuration parameters for websocket connections
+  RealtimeOptions? realtime;
+
   ClientOptions _merge(ClientOptions? other) => ClientOptions(
       apiKey: other?.apiKey ?? apiKey,
       localStorage: other?.localStorage ?? localStorage,
-      signInRedirect: other?.signInRedirect ?? signInRedirect);
+      signInRedirect: other?.signInRedirect ?? signInRedirect,
+      realtime: other?.realtime ?? realtime);
+}
+
+/// The options that can be passed to the client instance realtime module
+class RealtimeOptions {
+  /// The flag to enable or prevent automatic join to channels already
+  /// subscribed in case of websocket reconnection. When websocket is
+  /// disconnected, it automatically leaves subscribed channels.
+  /// This parameter helps re-joining to already joined channels when
+  /// the connection is restored.
+  bool? autoJoinChannels;
+
+  /// The flag to enable or prevent realtime messages originating from
+  /// this connection being echoed back on the same connection.
+  bool? echoMessages;
+
+  /// The initial delay before realtime reconnection in milliseconds.
+  /// @type {number}
+  int? reconnectionDelay;
+
+  /// The timeout in milliseconds for each realtime connection attempt.
+  /// @type {number}
+  int? timeout;
+
+  /// By default, any event emitted while the realtime socket is not
+  /// connected will be buffered until reconnection. You can turn
+  /// on/off the message buffering using this parameter.
+  bool? bufferMessages;
 }
 
 /// Client local storage handler definition.
@@ -855,10 +887,17 @@ class DeleteInfo {
 /// aggregate calculation instructions to [QueryBuilder.compute] method
 abstract class GroupComputation {
   GroupComputation(
-      {required this.name, required this.type, required this.expression});
+      {required this.name,
+      required this.type,
+      required this.expression,
+       this.sort});
 
-  Map<String, dynamic> toJson() =>
-      {'name': name, 'type': type.name, 'expression': expression};
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'type': type.name,
+        'expression': expression,
+        'sort': sort?.name ?? 'none'
+      };
 
   /// The name of the computation which will be reported in the result of
   /// [QueryBuilder.compute] method execution. If you are defining more
@@ -890,6 +929,13 @@ abstract class GroupComputation {
   /// The computation expression string. Except **count**, expression string is
   /// required for all other computation types.
   String expression;
+
+  ///  Defines the sort direction of computed field. If sort direction is
+  ///  specified as either `asc` or `desc`, computed groups will be sorted
+  ///  accordingly.
+  ///
+  ///  If [sort] is null not sorted.
+  Direction? sort;
 }
 
 enum GroupComputationType { count, sum }
@@ -1058,3 +1104,20 @@ class FileUploadOptions extends DbOperationOptions<FileUploadOptions> {
 enum Method { GET, POST, PUT, DELETE }
 
 enum ResolveType { json, text, blob, arraybuffer }
+
+/// Defines the structure of the channel member data.
+class MemberData {
+  MemberData({required this.id, this.data});
+
+  factory MemberData.fromJson(Map<String, dynamic> map) =>
+      MemberData(id: map['id'] as String, data: map['data']);
+
+  /// The unique socket id of the channel member
+  String id;
+
+  /// Data payload for the channel member. The supported payload types are
+  /// strings, JSON objects and arrays, buffers containing arbitrary binary
+  /// data, and null. This data is typically set calling the
+  /// [RealtimeManager.updateProfile] method.
+  dynamic data;
+}

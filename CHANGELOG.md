@@ -1,3 +1,7 @@
+## 0.0.3+3
+
+- File delete fix
+
 ## 0.0.3+2
 
 - Readme updated.

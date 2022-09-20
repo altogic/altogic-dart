@@ -230,6 +230,12 @@ class Fetcher {
   /// Returns the api base url string.
   String getBaseUrl() => restUrl;
 
+  /// Returns the client key
+  String? getClientKey() => headers['X-Client-Key'];
+
+  /// Returns the session token
+  String? getSessionToken() => headers['Session'];
+
   /// Uploads a file object instead of fetcher in order to track upload
   /// progress and call a callback function.
   ///

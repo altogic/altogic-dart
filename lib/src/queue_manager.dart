@@ -37,14 +37,22 @@ class QueueManager extends APIBase {
   /// [message] The message payload (JSON object) that will be submitted to the
   /// message queue.
   ///
+  /// [delay] The number of seconds to delay the messages in queue before
+  /// dispacthing them to their consuming service
+  ///
   /// If successful, returns information about the submitted message. You can
   /// use `messageId` to check the processing status of your message by
   /// calling [getMessageStatus] method. In case of an errors, returns the
   /// errors that occurred.
   Future<APIResponse<MessageInfo>> submitMessage(
-      String queueNameOrId, Map<String, dynamic> message) async {
-    var res = await fetcher.post<Map<String, dynamic>>('/_api/rest/v1/queue',
-        body: {'queueNameOrId': queueNameOrId, 'message': message});
+      String queueNameOrId, Map<String, dynamic> message,
+      [int? delay]) async {
+    var res =
+        await fetcher.post<Map<String, dynamic>>('/_api/rest/v1/queue', body: {
+      'queueNameOrId': queueNameOrId,
+      'message': message,
+      if (delay != null) 'delay': delay
+    });
     return APIResponse(
         errors: res.errors,
         data: res.data != null ? MessageInfo.fromJson(res.data!) : null);

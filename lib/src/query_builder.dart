@@ -908,4 +908,45 @@ class QueryBuilder extends APIBase {
     return APIResponse(
         errors: res.errors, data: res.data?.cast<Map<String, dynamic>>());
   }
+
+  /// Retrieves a list of objects from the database running the full-text (fuzzy)
+  /// search on the specified field, which must be covered by a full-text search
+  /// index. If filter is specified it applies the filter query to further
+  /// narrow down the results. The retrieved objects are sorted automatically
+  /// in terms of the scores of the full-text search results. See table below
+  /// for applicable modifiers that can be used with this method.
+  ///
+  /// | Modifier | Chained with searchFuzzy? |
+  /// | :--- | :--- |
+  /// | filter |  &#10004; |
+  /// | group |  |
+  /// | limit | &#10004; |
+  /// | lookup | &#10004; |
+  /// | omit |  &#10004; |
+  /// | page |  &#10004; |
+  /// | sort |   |
+  ///
+  /// > *This method can run only on top-level objects with a full-text (fuzzy)
+  /// searchable field. You cannot run fuzzy search on sub-model objects or
+  /// sub-model object lists.*
+  ///
+  /// > *The searched field should be a `text` or `rich-text` field marked as
+  /// **full-text (fuzzy) searchable** in model definition to use this method.*
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to call
+  /// this method.*
+  ///
+  /// [fieldName] The name of the field to run the full-text search.
+  ///
+  /// [text] The search string
+  ///
+  /// Returns the array of objects matching the full-text search and filter query (if specified).
+  Future<APIResponse<List<Map<String, dynamic>>>> searchFuzzy(
+      String fieldName, String text) async {
+    var res = await _call<List<dynamic>>('/_api/rest/v1/db/fuzzy-search',
+        {'fieldName': fieldName, 'text': text});
+    return APIResponse(
+        errors: res.errors, data: res.data?.cast<Map<String, dynamic>>());
+  }
 }

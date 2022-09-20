@@ -163,15 +163,18 @@ class AuthManager extends APIBase {
   /// Sign up methods wrapper.
   Future<UserSessionResult> _signUp(
       String endpoint, String inputName, String input, String password,
-      [String? name]) async {
+      [dynamic nameOrUser]) async {
     checkRequired(inputName, input);
     checkRequired('password', password);
+
+    assert(nameOrUser is String || nameOrUser is User || nameOrUser == null);
 
     var apiResponse = await fetcher
         .post<Map<String, dynamic>>('/_api/rest/v1/auth/$endpoint', body: {
       inputName: input,
       'password': password,
-      if (name != null) 'name': name
+      if (nameOrUser is String) 'name': nameOrUser,
+      if (nameOrUser is User) 'name': nameOrUser.toJson(),
     });
 
     if (apiResponse.errors != null) {
@@ -221,10 +224,15 @@ class AuthManager extends APIBase {
   /// already a user with the provided email address then an error is raised.
   /// <br>
   /// [password] Password of the user, should be at least 6 characters long <br>
-  /// [name] Name of the user
+  ///
+  /// [nameOrUser] Name of the user or additional user data associated
+  /// with the user that is being created in the database. Besides the name of
+  /// the user, you can pass additional user fields with values
+  /// (except email and password)  to be created in the database.
+  ///
   Future<UserSessionResult> signUpWithEmail(String email, String password,
-          [String? name]) async =>
-      _signUp('signup-email', 'email', email, password, name);
+          [dynamic nameOrUser]) async =>
+      _signUp('signup-email', 'email', email, password, nameOrUser);
 
   /// Creates a new user using the mobile phone number and password
   /// authentication method in the database.
@@ -243,10 +251,15 @@ class AuthManager extends APIBase {
   /// already a user with the provided phone number then an error is raised.<br>
   /// [password] Password of the user, should be at least
   /// 6 characters long <br>
-  /// [name] Name of the user
+  ///
+  /// [nameOrUser] Name of user or additional user data associated with the
+  /// user that is being created in the database. Besides the name of the user,
+  /// you can pass additional user fields with values
+  /// (except phone and password) to be created in the database.
+  ///
   Future<UserSessionResult> signUpWithPhone(String phone, String password,
-          [String? name]) async =>
-      _signUp('signup-phone', 'phone', phone, password, name);
+          [dynamic nameOrUser]) async =>
+      _signUp('signup-phone', 'phone', phone, password, nameOrUser);
 
   /// Sign in methods wrapper.
   Future<UserSessionResult> _signIn(
