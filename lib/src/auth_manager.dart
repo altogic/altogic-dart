@@ -46,9 +46,11 @@ class AuthManager extends APIBase {
   /// application's execution engine
   ///
   /// [clientOptions] Altogic client options
-  AuthManager(Fetcher fetcher, ClientOptions clientOptions)
+  AuthManager(
+      AltogicClient client, Fetcher fetcher, ClientOptions clientOptions)
       : _localStorage = clientOptions.localStorage,
         _singInRedirect = clientOptions.signInRedirect,
+        _client = client,
         super(fetcher);
 
   /// Storage handler to manage local user and session data
@@ -56,6 +58,9 @@ class AuthManager extends APIBase {
 
   /// Sign in page url to redirect when the user's session becomes invalid
   final String? _singInRedirect;
+
+  /// Reference to the Altogic client library realtime manager
+  final AltogicClient _client;
 
   /// Deletes the currently active session and user data in local storage.
   Future<void> _deleteLocalData() async {
@@ -766,5 +771,36 @@ class AuthManager extends APIBase {
     } else {
       return UserSessionResult(user: user);
     }
+  }
+
+  // ignore_for_file: lines_longer_than_80_chars
+
+  /// Registers a method to listen to main user events. The following events
+  /// will be listened:
+  ///
+  /// | Event | Description |
+  /// | :--- | :--- |
+  /// | user:signin |  Triggered whenever a new user session is created. |
+  /// | user:signout | Triggered when a user session is deleted. If {@link signOutAll} or {@link signOutAllExceptCurrent} method is called then for each deleted sesssion a separate `user:signout` event is triggered. |
+  /// | user:update | Triggered whenever user data changes including password, email and phone number updates. |
+  /// | user:delete | Triggered when the user data is deleted from the database. |
+  /// | user:pwdchange |  Triggered when the user password changes, either through direct password update or password reset. |
+  /// | user:emailchange |  Triggered whenever the email of the user changes. |
+  /// | user:phonechange |  Triggered whenever the phone number of the user changes. |
+  ///
+  /// > *Please note that `user:update` and `user:delete` events are fired
+  /// only when a specific user with a known _id is updated or deleted in the
+  /// database. For bulk user update or delete operations these events are
+  /// not fired.*
+  ///
+  /// > *An active user session is required (e.g., user needs to be logged in)
+  /// to call this method.*
+  ///
+  /// [listener] The listener function. This function gets two input parameters
+  /// the name of the event that is being triggered and the user session object
+  /// that has triggered the event. If the event is triggered by the user
+  /// without a session, then the session value will be `null`.
+  void onUserEvent(UserEventListenerFunction listener) {
+    _client.realtime.onUserEvent(listener);
   }
 }

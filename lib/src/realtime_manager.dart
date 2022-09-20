@@ -83,7 +83,7 @@ class RealtimeManager extends APIBase {
 
   /// Keeps a reference to the latest user data that is updated using the
   /// [updateProfile] method.
-  dynamic userData;
+  dynamic _userData;
 
   /// Connects to the realtime server
   void _establishConnection([RealtimeOptions? options]) {
@@ -108,7 +108,7 @@ class RealtimeManager extends APIBase {
   }
 
   void _joinChannels() {
-    if (userData != null) updateProfile(userData, _echoMessages);
+    if (_userData != null) updateProfile(_userData, _echoMessages);
     _channels.forEach(join);
   }
 
@@ -349,7 +349,7 @@ class RealtimeManager extends APIBase {
   ///
   void updateProfile(dynamic data, [bool? echo]) {
     _socket!.json.emit('update', {data, echo});
-    userData = data;
+    _userData = data;
   }
 
   /// Convenience method which registers a new listener function for `

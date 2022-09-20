@@ -45,6 +45,8 @@ AltogicClient createClient(String envUrl, String clientKey,
 /// high-speed data storage layer (Redis)
 /// * [task] : [TaskManager] - Manually trigger execution of
 /// scheduled tasks (e.g., cron jobs)
+/// * [realtime]: [RealtimeManager] - Publish and subscribe (pub/sub) realtime
+/// messaging through websockets
 ///
 /// Each AltogicClient can interact with one of your app environments
 /// (e.g., development, test, production). You cannot create a single
@@ -141,9 +143,14 @@ class AltogicClient {
   /// app's cloud storage.
   StorageManager? _storageManager;
 
+  /// RealtimeManager object is used to send and receive realtime message
+  /// through websockets
+  RealtimeManager? _realtimeManager;
+
   /// Returns the authentication manager that can be used to perform user
   /// and session management activities.
-  AuthManager get auth => _authManager ??= AuthManager(_fetcher, settings);
+  AuthManager get auth =>
+      _authManager ??= AuthManager(this, _fetcher, settings);
 
   /// Returns the endpoint manager which is used to make http requests to
   /// your app endpoints and execute associated services.
@@ -169,4 +176,13 @@ class AltogicClient {
   /// Returns the storage manager, which is used to manage buckets and files
   /// of your app.
   StorageManager get storage => _storageManager ??= StorageManager(_fetcher);
+
+  /// Returns the realtime manager, which is used to publish and subscribe
+  /// (pub/sub) messaging through websockets.
+  ///
+  /// > *If the client library key is set to **enforce session**, an active
+  /// user session is required (e.g., user needs to be logged in) to establish
+  /// a realtime connection.*
+  RealtimeManager get realtime =>
+      _realtimeManager ??= RealtimeManager(_fetcher);
 }
