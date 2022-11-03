@@ -1,5 +1,4 @@
-import '../altogic_dart.dart';
-
+part of altogic_dart;
 /// The query builder is primarily used to build database queries or run CRUD
 /// operations on a model (i.e., table, collection) of your application.
 ///
@@ -50,7 +49,7 @@ class QueryBuilder extends APIBase {
   /// [id] The unique identifier of the object that is stored in the database
   ///
   /// A DBObject instance
-  DBObject object([String? id]) => DBObject(_modelName, fetcher, id);
+  DBObject object([String? id]) => DBObject(_modelName, _fetcher, id);
 
   //ignore_for_file: avoid_returning_this , lines_longer_than_80_chars
 
@@ -343,7 +342,6 @@ class QueryBuilder extends APIBase {
   ///
   /// Returns the [QueryBuilder] itself so that you can chain other methods
   QueryBuilder filter(String expression) {
-    checkRequired('expression', expression);
     _action.expression = expression;
     return this;
   }
@@ -474,7 +472,7 @@ class QueryBuilder extends APIBase {
   }
 
   Future<APIResponse<T>> _call<T>(String path, Map<String, dynamic> map) =>
-      fetcher.post<T>(path,
+      _fetcher.post<T>(path,
           body: {...map, 'query': _action.toJson(), 'model': _modelName});
 
   /// Creates top level model objects in the database. This method ignores all

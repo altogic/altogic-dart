@@ -1,6 +1,4 @@
-import 'dart:typed_data';
-
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 /// [FileManager] is primarily used to manage a file. Using the
 /// [BucketManager.file] method, you can create a FileManager instance for a
@@ -15,7 +13,7 @@ class FileManager extends APIBase {
   /// [fileNameOrId] The name of id of the file that this file manager will
   /// be operating on.
   ///
-  /// [fetcher] The http client to make RESTful API calls to the application's
+  /// [_fetcher] The http client to make RESTful API calls to the application's
   /// execution engine.
   FileManager(String bucketNameOrId, String fileNameOrId, super.fetcher)
       : _bucketNameOrId = bucketNameOrId,
@@ -32,7 +30,7 @@ class FileManager extends APIBase {
           String? newName,
           String? duplicateName,
           String? bucketNameOrId}) =>
-      fetcher.post<T>(path,
+      _fetcher.post<T>(path,
           body: {
             if (newName != null) 'newName': newName,
             if (duplicateName != null) 'duplicateName': duplicateName,
@@ -153,14 +151,14 @@ class FileManager extends APIBase {
   /// Returns the metadata of the file after replacement
   Future<APIResponse<JsonMap>> replace(Uint8List fileBody,
           [FileUploadOptions? options]) =>
-      fetcher.upload<JsonMap>(
-          '/_api/rest/v1/storage/bucket/replace-formdata',
+      _fetcher.upload<JsonMap>(
+          '/_api/rest/v1/storage/bucket/file/replace-formdata',
           fileBody,
           _fileNameOrId,
           options?.contentType ?? DEFAULT_FILE_OPTIONS.contentType!,
           query: {
             'bucket': _bucketNameOrId,
-            'fileName': _fileNameOrId,
+            'file': _fileNameOrId,
             'options': DEFAULT_FILE_OPTIONS.merge(options).toJson(),
           },
           onProgress: options?.onProgress);
@@ -211,7 +209,7 @@ class FileManager extends APIBase {
         tags is String || tags is List<String>,
         '[tags] must be String '
         'or List<String>');
-    return fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/add-tags',
+    return _fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/add-tags',
         body: {'tags': tags, 'bucket': _bucketNameOrId, 'file': _fileNameOrId});
   }
 
@@ -230,7 +228,7 @@ class FileManager extends APIBase {
         tags is String || tags is List<String>,
         '[tags] must be String '
         'or List<String>');
-    return fetcher.post<JsonMap>(
+    return _fetcher.post<JsonMap>(
         '/_api/rest/v1/storage/bucket/file/remove-tags',
         body: {'tags': tags, 'bucket': _bucketNameOrId, 'file': _fileNameOrId});
   }
@@ -250,13 +248,11 @@ class FileManager extends APIBase {
   ///
   /// Returns the updated file information
   Future<APIResponse<JsonMap>> updateInfo(
-          {required String newName,
-          required bool isPublic,
-          List<String>? tags}) =>
-      fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/update', body: {
-        'tags': tags,
-        'newName': newName,
-        'isPublic': isPublic,
+          {String? newName, bool? isPublic, List<String>? tags}) =>
+      _fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/update', body: {
+        if (tags != null) 'tags': tags,
+        if (newName != null) 'newName': newName,
+        if (isPublic != null) 'isPublic': isPublic,
         'bucket': _bucketNameOrId,
         'file': _fileNameOrId
       });

@@ -1,2 +1,2 @@
 
-Tests : https://github.com/Mehmetyaz/altogic_dart_test
+Tests : https://github.com/yazmehmet/altogic_flutter_example

@@ -1,5 +1,4 @@
-import 'utils/fetcher.dart';
-
+part of altogic_dart;
 /// The base class where all manager classes are derived from.
 ///
 /// All manager classes interact with your app backend through the RESTful API
@@ -9,11 +8,11 @@ import 'utils/fetcher.dart';
 abstract class APIBase {
   /// Creates an instance of base class to access services exposed by Altogic
   ///
-  /// [fetcher] The http client to make RESTful API calls to the
+  /// [_fetcher] The http client to make RESTful API calls to the
   /// application's execution engine
-  APIBase(this.fetcher);
+  APIBase(this._fetcher);
 
   /// The http client to make RESTful API calls to the application's execution
   /// engine
-  final Fetcher fetcher;
+  final Fetcher _fetcher;
 }

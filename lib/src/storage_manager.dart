@@ -1,4 +1,4 @@
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 /// Allows you manage your app's cloud storage buckets and files. With
 /// [StorageManager] you can create and list buckets and use the [BucketManager]
@@ -22,7 +22,7 @@ class StorageManager extends APIBase {
   /// Creates an instance of [StorageManager] to manage storage (i.e., files)
   /// of your application.
   ///
-  /// [fetcher] The http client to make RESTful API calls to the application's
+  /// [_fetcher] The http client to make RESTful API calls to the application's
   /// execution engine
   StorageManager(super.fetcher);
 
@@ -43,7 +43,7 @@ class StorageManager extends APIBase {
   ///
   /// Returns a new [BucketManager] object that will be used for managing the
   /// bucket
-  BucketManager bucket(String nameOrId) => BucketManager(nameOrId, fetcher);
+  BucketManager bucket(String nameOrId) => BucketManager(nameOrId, _fetcher);
 
   /// Creates a new bucket. If there already exists a bucket with the specified
   /// name, it returns an error.
@@ -73,7 +73,7 @@ class StorageManager extends APIBase {
   /// Returns info about newly created bucket
   Future<APIResponse<Map<String, dynamic>>> createBucket(String name,
       {bool isPublic = true, List<String> tags = const []}) async {
-    var res = await fetcher.post<Map<String, dynamic>>(
+    var res = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/storage/create-bucket',
         body: {'name': name, 'isPublic': isPublic, 'tags': tags});
     return APIResponse(errors: res.errors, data: res.data);
@@ -110,14 +110,14 @@ class StorageManager extends APIBase {
   /// information and the matching buckets array.
   Future<APIResponse<dynamic>> listBuckets(
           {String? expression, BucketListOptions? options}) =>
-      fetcher.post('/_api/rest/v1/storage/list-buckets',
+      _fetcher.post('/_api/rest/v1/storage/list-buckets',
           body: {'expression': expression, 'options': options?.toJson()});
 
   //ignore_for_file: lines_longer_than_80_chars
 
   /// Returns a [BucketManager] for the [root] bucket. It is equivalent to
   /// calling `bucket('root')`
-  BucketManager get root => BucketManager('root', fetcher);
+  BucketManager get root => BucketManager('root', _fetcher);
 
   /// Returns the overall information about your apps cloud storage including
   /// total number of buckets and files stored, total storage size in bytes
@@ -129,7 +129,7 @@ class StorageManager extends APIBase {
   ///
   /// Returns information about your app's cloud storage
   Future<APIResponse<Map<String, dynamic>>> getStats() =>
-      fetcher.get<Map<String, dynamic>>('/_api/rest/v1/storage/stats');
+      _fetcher.get<Map<String, dynamic>>('/_api/rest/v1/storage/stats');
 
   /// Gets the list of files matching the search expression. This method
   /// performs a global search across all the files contained in all the
@@ -163,15 +163,12 @@ class StorageManager extends APIBase {
   /// Returns the files matching the search query. If `returnCountInfo=true`
   /// in [FileListOptions], returns an object which includes count information
   /// and array of matching files.
-  Future<APIResponse<List<Map<String, dynamic>>>> searchFiles(String expression,
+  Future<APIResponse<dynamic>> searchFiles(String expression,
       [FileListOptions? options]) async {
-    var res = await fetcher.post<List<dynamic>>(
-        '/_api/rest/v1/storage/search-files',
+    var res = await _fetcher.post<dynamic>('/_api/rest/v1/storage/search-files',
         body: {'expression': expression, 'options': options?.toJson()});
 
-    return APIResponse(
-        data: (res.data as List).cast<Map<String, dynamic>>(),
-        errors: res.errors);
+    return APIResponse(data: res.data, errors: res.errors);
   }
 
   /// Deletes a file identified by the url string. You can directly use this
@@ -184,6 +181,6 @@ class StorageManager extends APIBase {
   ///
   /// [fileUrl] The url of the file that will be deleted
   Future<APIError?> deleteFile(String fileUrl) =>
-      fetcher.post<dynamic>('/_api/rest/v1/storage/delete-file',
+      _fetcher.post<dynamic>('/_api/rest/v1/storage/delete-file',
           body: {'fileUrl': fileUrl}).then((value) => value.errors);
 }

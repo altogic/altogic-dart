@@ -1,5 +1,4 @@
-import '../altogic_dart.dart';
-
+part of altogic_dart;
 abstract class APIResponseBase {
   APIResponseBase({this.errors});
 

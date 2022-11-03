@@ -1,3 +1,22 @@
+## 0.0.9
+
+- Bug Fixes
+- Preparing to release
+
+## 0.0.6
+
+- Bug fixes
+- ``APIError.toJson`` added
+
+## 0.0.5
+
+- Bug fixes
+
+## 0.0.4
+
+- Many casting errors fixed
+- RealtimeManager added
+
 ## 0.0.3+3
 
 - File delete fix

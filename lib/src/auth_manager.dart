@@ -1,9 +1,4 @@
-import 'dart:convert';
-
-import '../altogic_dart.dart';
-import 'utils/platform_auth/stub_auth.dart'
-    if (dart.library.html) 'utils/platform_auth/web_auth.dart'
-    if (dart.library.io) 'utils/platform_auth/io_auth.dart' show setRedirect;
+part of altogic_dart;
 
 /// Handles the authentication process of your application users.
 /// Provides methods to manage users, sessions and authentication.
@@ -62,6 +57,11 @@ class AuthManager extends APIBase {
   /// Reference to the Altogic client library realtime manager
   final AltogicClient _client;
 
+  Stream<AuthState> get authStateChanges =>
+      _fetcher._userStreamController.stream;
+
+  AuthState get currentState => _fetcher._state;
+
   /// Deletes the currently active session and user data in local storage.
   Future<void> _deleteLocalData() async {
     if (_localStorage != null) {
@@ -95,7 +95,7 @@ class AuthManager extends APIBase {
   /// in a browser, redirects the user to the sign in page.
   Future<void> invalidateSession() async {
     await _deleteLocalData();
-    fetcher.clearSession();
+    _fetcher.clearSession();
     if (_singInRedirect != null) {
       setRedirect(_singInRedirect);
     }
@@ -147,7 +147,7 @@ class AuthManager extends APIBase {
   /// call this service to update session data so that your calls to your
   /// app endpoints that require a valid session token do not fail.
   Future<void> setSession(Session session) async {
-    fetcher.setSession(session);
+    _fetcher.setSession(session, await getUser());
     if (_localStorage != null) {
       await _localStorage!.setItem('session', json.encode(session.toJson()));
     }
@@ -174,7 +174,7 @@ class AuthManager extends APIBase {
 
     assert(nameOrUser is String || nameOrUser is User || nameOrUser == null);
 
-    var apiResponse = await fetcher
+    var apiResponse = await _fetcher
         .post<Map<String, dynamic>>('/_api/rest/v1/auth/$endpoint', body: {
       inputName: input,
       'password': password,
@@ -199,7 +199,7 @@ class AuthManager extends APIBase {
     if (session != null) {
       await _deleteLocalData();
       await _saveLocalData(user!, session);
-      fetcher.setSession(session);
+      _fetcher.setSession(session, user);
     }
 
     return UserSessionResult(session: session, user: user);
@@ -272,7 +272,7 @@ class AuthManager extends APIBase {
     checkRequired(inputName, input);
     checkRequired('password', password);
 
-    var apiResponse = await fetcher.post<Map<String, dynamic>>(
+    var apiResponse = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/auth/$endpoint',
         body: {inputName: input, 'password': password});
 
@@ -292,7 +292,7 @@ class AuthManager extends APIBase {
 
     await _deleteLocalData();
     await _saveLocalData(user!, session!);
-    fetcher.setSession(session);
+    _fetcher.setSession(session, user);
 
     return UserSessionResult(session: session, user: user);
   }
@@ -354,7 +354,7 @@ class AuthManager extends APIBase {
 
     var queryString = encodeUriParameters({'code': code, 'phone': phone});
 
-    var apiResponse = await fetcher.post<Map<String, dynamic>>(
+    var apiResponse = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/auth/signin-code$queryString');
 
     if (apiResponse.errors != null) {
@@ -373,7 +373,7 @@ class AuthManager extends APIBase {
 
     await _deleteLocalData();
     await _saveLocalData(user!, session!);
-    fetcher.setSession(session);
+    _fetcher.setSession(session, user);
 
     return UserSessionResult(session: session, user: user);
   }
@@ -406,7 +406,7 @@ class AuthManager extends APIBase {
   ///   "discord" |
   ///   "github"
   String signInWithProvider(String provider) =>
-      '${fetcher.getBaseUrl()}/_auth/$provider';
+      '${_fetcher.getBaseUrl()}/_auth/$provider';
 
   /// If an input token is <u>not</u> provided, signs out the user from the
   /// current session, clears user and session data in local storage and
@@ -419,15 +419,16 @@ class AuthManager extends APIBase {
   /// [sessionToken] Session token which uniquely identifies a user session.
   Future<APIError?> signOut({String? sessionToken}) async {
     try {
-      var response = await fetcher.post<dynamic>('/_api/rest/v1/auth/signout');
+      var response = await _fetcher.post<dynamic>('/_api/rest/v1/auth/signout',
+          body: {if (sessionToken != null) 'token': sessionToken});
 
       var session = await getSession();
 
-      if (response.errors != null &&
+      if (response.errors == null &&
           (sessionToken == null ||
               (session != null && sessionToken == session.token))) {
         await _deleteLocalData();
-        fetcher.clearSession();
+        _fetcher.clearSession();
       }
 
       return response.errors;
@@ -446,11 +447,11 @@ class AuthManager extends APIBase {
   /// to call this method.
   Future<APIError?> signOutAll() async {
     var response =
-        await fetcher.post<dynamic>('/_api/rest/v1/auth/signout-all');
+        await _fetcher.post<dynamic>('/_api/rest/v1/auth/signout-all');
 
     if (response.errors != null) {
       await _deleteLocalData();
-      fetcher.clearSession();
+      _fetcher.clearSession();
     }
 
     return response.errors;
@@ -463,7 +464,7 @@ class AuthManager extends APIBase {
   /// in) to call this method.
   Future<APIError?> signOutAllExceptCurrent() async {
     var response =
-        await fetcher.post<dynamic>('/_api/rest/v1/auth/signout-all-except');
+        await _fetcher.post<dynamic>('/_api/rest/v1/auth/signout-all-except');
 
     return response.errors;
   }
@@ -473,9 +474,9 @@ class AuthManager extends APIBase {
   /// > An active user session is required (e.g., user needs to be logged in)
   /// to call this method.
   Future<SessionResult> getAllSessions() async {
-    var res = await fetcher.get<List<dynamic>>('/_api/rest/v1/auth/sessions');
+    var res = await _fetcher.get<List<dynamic>>('/_api/rest/v1/auth/sessions');
     return SessionResult(
-        sessions: res.errors != null
+        sessions: res.errors == null
             ? res.data!
                 .map((e) => Session.fromJson(e as Map<String, dynamic>))
                 .toList()
@@ -489,7 +490,7 @@ class AuthManager extends APIBase {
   /// to call this method.
   Future<UserResult> getUserFromDB() async {
     var res =
-        await fetcher.get<Map<String, dynamic>>('/_api/rest/v1/auth/user');
+        await _fetcher.get<Map<String, dynamic>>('/_api/rest/v1/auth/user');
     return UserResult(
         user: res.data != null ? User.fromJson(res.data!) : null,
         errors: res.errors);
@@ -503,7 +504,7 @@ class AuthManager extends APIBase {
   /// [oldPassword] The current password of the user
   Future<APIError?> changePassword(
       String newPassword, String oldPassword) async {
-    var res = await fetcher.post<dynamic>('/_api/rest/v1/auth/change-pwd',
+    var res = await _fetcher.post<dynamic>('/_api/rest/v1/auth/change-pwd',
         body: {'newPassword': newPassword, 'oldPassword': oldPassword});
     return res.errors;
   }
@@ -522,7 +523,7 @@ class AuthManager extends APIBase {
   Future<UserSessionResult> getAuthGrant([String? accessToken]) async {
     var tokenStr = accessToken ?? getParamValue('access_token');
 
-    var res = await fetcher.get<Map<String, dynamic>>(
+    var res = await _fetcher.get<Map<String, dynamic>>(
         '/_api/rest/v1/auth/grant?key=${tokenStr ?? ""}');
 
     if (res.errors != null) return UserSessionResult(errors: res.errors);
@@ -535,7 +536,8 @@ class AuthManager extends APIBase {
     await _deleteLocalData();
     await _saveLocalData(userSession.user!, userSession.session!);
 
-    fetcher.setSession(userSession.session!);
+    _fetcher.setSession(
+        userSession.session!, userSession.user);
 
     return userSession;
   }
@@ -546,7 +548,7 @@ class AuthManager extends APIBase {
   ///
   /// [email] The email address of the user to send the verification email.
   Future<APIError?> resendVerificationEmail(String email) async =>
-      (await fetcher.post<dynamic>('/_api/rest/v1/auth/resend?email=$email'))
+      (await _fetcher.post<dynamic>('/_api/rest/v1/auth/resend?email=$email'))
           .errors;
 
   /// Resends the code to verify the user's phone number. If the user's phone
@@ -555,7 +557,7 @@ class AuthManager extends APIBase {
   ///
   /// [phone] The phone number of the user to send the verification SMS code.
   Future<APIError?> resendVerificationCode(String phone) async =>
-      (await fetcher.post<dynamic>(
+      (await _fetcher.post<dynamic>(
               '/_api/rest/v1/auth/resend-code${encodeUriParameters({
             'phone': phone
           })}'))
@@ -577,7 +579,7 @@ class AuthManager extends APIBase {
   /// or if the user's email has not been verified, it returns an error.
   ///
   /// [email] The email address of the user to send the verification email.
-  Future<APIError?> sendMagicLinkEmail(String email) async => (await fetcher
+  Future<APIError?> sendMagicLinkEmail(String email) async => (await _fetcher
           .post<dynamic>('/_api/rest/v1/auth/send-magic?email=$email'))
       .errors;
 
@@ -600,7 +602,7 @@ class AuthManager extends APIBase {
   /// or if the user's email has not been verified, it returns an error.
   ///
   /// [email] The email address of the user to send the verification email.
-  Future<APIError?> sendResetPwdEmail(String email) async => (await fetcher
+  Future<APIError?> sendResetPwdEmail(String email) async => (await _fetcher
           .post<dynamic>('/_api/rest/v1/auth/send-reset?email=$email'))
       .errors;
 
@@ -620,7 +622,7 @@ class AuthManager extends APIBase {
   ///
   /// [phone] The phone number of the user to send the reset password code.
   Future<APIError?> sendResetPwdCode(String phone) async =>
-      (await fetcher.post<dynamic>(
+      (await _fetcher.post<dynamic>(
               '/_api/rest/v1/auth/send-reset${encodeUriParameters({
             "phone": phone
           })}'))
@@ -643,7 +645,7 @@ class AuthManager extends APIBase {
   ///
   /// [phone] The phone number of the user to send the SMS code.
   Future<APIError?> sendSignInCode(String phone) async =>
-      (await fetcher.post<dynamic>(
+      (await _fetcher.post<dynamic>(
               '/_api/rest/v1/auth/send-code${encodeUriParameters({
             "phone": phone
           })}'))
@@ -658,7 +660,7 @@ class AuthManager extends APIBase {
   /// [newPassword] The new password of the user
   Future<APIError?> resetPwdWithToken(
           String accessToken, String newPassword) async =>
-      (await fetcher.post<dynamic>(
+      (await _fetcher.post<dynamic>(
               '/_api/rest/v1/auth/reset-pwd?key=$accessToken',
               body: {'newPassword': newPassword}))
           .errors;
@@ -671,7 +673,7 @@ class AuthManager extends APIBase {
   /// [newPassword] The new password of the user
   Future<APIError?> resetPwdWithCode(
           String phone, String code, String newPassword) async =>
-      (await fetcher.post<dynamic>(
+      (await _fetcher.post<dynamic>(
               '/_api/rest/v1/auth/reset-pwd-code${encodeUriParameters({
                     'phone': phone,
                     'code': code
@@ -698,14 +700,16 @@ class AuthManager extends APIBase {
   /// [newEmail] The new email address of the user
   Future<UserResult> changeEmail(
       String currentPassword, String newEmail) async {
-    var res = await fetcher.post<Map<String, dynamic>>(
+    var res = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/auth/change-email',
         body: {'currentPassword': currentPassword, 'newEmail': newEmail});
 
     return UserResult(
         errors: res.errors,
-        user: res.errors != null
-            ? User.fromJson((res.data!)['user'] as Map<String, dynamic>)
+        user: res.errors == null
+            ? (res.data?['user']) == null
+                ? null
+                : User.fromJson(res.data?['user'] as Map<String, dynamic>)
             : null);
   }
 
@@ -730,14 +734,16 @@ class AuthManager extends APIBase {
   /// [newPhone] The new phone number of the user
   Future<UserResult> changePhone(
       String currentPassword, String newPhone) async {
-    var res = await fetcher.post<Map<String, dynamic>>(
+    var res = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/auth/change-phone',
         body: {'currentPassword': currentPassword, 'newPhone': newPhone});
 
     return UserResult(
         errors: res.errors,
-        user: res.errors != null
-            ? User.fromJson((res.data!)['user'] as Map<String, dynamic>)
+        user: res.errors == null
+            ? (res.data?['user']) == null
+                ? null
+                : User.fromJson(res.data?['user'] as Map<String, dynamic>)
             : null);
   }
 
@@ -753,7 +759,7 @@ class AuthManager extends APIBase {
   ///
   /// [code] The code sent in SMS (e.g., 6-digit number).
   Future<UserSessionResult> verifyPhone(String phone, String code) async {
-    var res = await fetcher.post<Map<String, dynamic>>(
+    var res = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/auth/verify-phone${encodeUriParameters({
           'code': code,
           'phone': phone
@@ -766,7 +772,7 @@ class AuthManager extends APIBase {
       var session = Session.fromJson(data['session'] as Map<String, dynamic>);
       await _deleteLocalData();
       await _saveLocalData(user, session);
-      fetcher.setSession(session);
+      _fetcher.setSession(session, user);
       return UserSessionResult(user: user, session: session);
     } else {
       return UserSessionResult(user: user);
@@ -778,15 +784,16 @@ class AuthManager extends APIBase {
   /// Registers a method to listen to main user events. The following events
   /// will be listened:
   ///
-  /// | Event | Description |
-  /// | :--- | :--- |
-  /// | user:signin |  Triggered whenever a new user session is created. |
-  /// | user:signout | Triggered when a user session is deleted. If {@link signOutAll} or {@link signOutAllExceptCurrent} method is called then for each deleted sesssion a separate `user:signout` event is triggered. |
-  /// | user:update | Triggered whenever user data changes including password, email and phone number updates. |
-  /// | user:delete | Triggered when the user data is deleted from the database. |
-  /// | user:pwdchange |  Triggered when the user password changes, either through direct password update or password reset. |
-  /// | user:emailchange |  Triggered whenever the email of the user changes. |
-  /// | user:phonechange |  Triggered whenever the phone number of the user changes. |
+  ///
+  ///| Event            | Description                                                                                                                                                                      |
+  ///|:-----------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  ///| user:signin      | Triggered whenever a new user session is created.                                                                                                                                |
+  ///| user:signout     | Triggered when a user session is deleted. If signOutAll or signOutAllExceptCurrent method is called then for each deleted sesssion a separate `user:signout` event is triggered. |
+  ///| user:update      | Triggered whenever user data changes including password, email and phone number updates.                                                                                         |
+  ///| user:delete      | Triggered when the user data is deleted from the database.                                                                                                                       |
+  ///| user:pwdchange   | Triggered when the user password changes, either through direct password update or password reset.                                                                               |
+  ///| user:emailchange | Triggered whenever the email of the user changes.                                                                                                                                |
+  ///| user:phonechange | Triggered whenever the phone number of the user changes.                                                                                                                         |
   ///
   /// > *Please note that `user:update` and `user:delete` events are fired
   /// only when a specific user with a known _id is updated or deleted in the

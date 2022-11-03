@@ -1,14 +1,11 @@
-import 'api_base.dart';
-import 'api_response.dart';
-import 'query_builder.dart';
-
+part of altogic_dart;
 /// The database manager allows you manage your applications database.
 /// With DatabaseManager you can create new objects in your data model,
 /// update or delete existing ones, run queries and paginate over large
 /// data sets.
 class DatabaseManager extends APIBase {
   /// Creates an instance of DatabaseManager to manage data of your application.
-  /// [fetcher] The http client to make RESTful API calls to the application's
+  /// [_fetcher] The http client to make RESTful API calls to the application's
   /// execution engine.
   DatabaseManager(super.fetcher);
 
@@ -34,7 +31,7 @@ class DatabaseManager extends APIBase {
   /// Returns a new query builder object that will be issuing
   /// database commands (e.g., CRUD operations, queries) on the specified model
   QueryBuilder model(String name) =>
-      QueryBuilder(modelName: name, fetcher: fetcher);
+      QueryBuilder(modelName: name, fetcher: _fetcher);
 
   /// Returns the overall information about your apps database and its models.
   ///
@@ -44,5 +41,5 @@ class DatabaseManager extends APIBase {
   ///
   /// Returns information about your app's database
   Future<APIResponse<List<dynamic>>> getStats() =>
-      fetcher.get<List<dynamic>>('/_api/rest/v1/db/stats');
+      _fetcher.get<List<dynamic>>('/_api/rest/v1/db/stats');
 }

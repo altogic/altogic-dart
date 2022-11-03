@@ -1,8 +1,4 @@
-import '../../altogic_dart.dart';
-import 'platform_fetcher/stub_fetcher.dart'
-    if (dart.library.html) 'platform_fetcher/web_fetcher.dart'
-    if (dart.library.io) 'platform_fetcher/io_fetcher.dart'
-    show handlePlatformRequest, handlePlatformUpload;
+part of altogic_dart;
 
 //ignore_for_file: constant_identifier_names
 const INVALID_SESSION_TOKEN = 'invalid_session_token';
@@ -37,6 +33,11 @@ class Fetcher {
   /// this field. If a session is available then the session token is added to
   /// the default headers of the Fetcher
   Session? session;
+
+  final StreamController<AuthState> _userStreamController =
+      StreamController.broadcast()..sink.add(AuthState._(null, null));
+
+  AuthState _state = AuthState._(null, null);
 
   /// Creates an instance of Fetcher.
   ///
@@ -214,9 +215,11 @@ class Fetcher {
   /// session token to the **Session** request header.
   ///
   /// [session] Session info object
-  void setSession(Session session) {
+  void setSession(Session session, User? user) {
     this.session = session;
     headers['Session'] = session.token;
+    _state = AuthState._(user, session);
+    _userStreamController.sink.add(_state);
   }
 
   /// Clears the session info of the user from the Fetcher. Basically removes
@@ -225,6 +228,8 @@ class Fetcher {
   void clearSession() {
     session = null;
     headers.remove('Session');
+    _state = AuthState._(null, null);
+    _userStreamController.sink.add(_state);
   }
 
   /// Returns the api base url string.

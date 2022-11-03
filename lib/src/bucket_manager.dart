@@ -1,6 +1,4 @@
-import 'dart:typed_data';
-
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 /// BucketManager is primarily used to manage a bucket and its contents
 /// (e.g., files, documents, images). Using the [StorageManager.bucket]
@@ -16,7 +14,7 @@ class BucketManager extends APIBase {
   /// [bucketNameOrId] The name or id of the bucket that this
   /// bucket manager will be operating on.
   ///
-  /// [fetcher] The http client to make RESTful API calls
+  /// [_fetcher] The http client to make RESTful API calls
   /// to the application's execution engine
   BucketManager(String bucketNameOrId, super.fetcher)
       : _bucketNameOrId = bucketNameOrId;
@@ -34,7 +32,7 @@ class BucketManager extends APIBase {
   Future<APIResponse<bool>> exists() {
     if (_bucketNameOrId == 'root') return Future.value(APIResponse(data: true));
 
-    return fetcher.post<bool>('/_api/rest/v1/storage/bucket/exists',
+    return _fetcher.post<bool>('/_api/rest/v1/storage/bucket/exists',
         body: {'bucket': _bucketNameOrId});
   }
 
@@ -52,7 +50,7 @@ class BucketManager extends APIBase {
   /// Returns basic bucket metadata informaton. If `detailed=true`
   /// provides additional information about contained files.
   Future<APIResponse<Map<String, dynamic>>> getInfo([bool detailed = false]) =>
-      fetcher.post<Map<String, dynamic>>('/_api/rest/v1/storage/bucket/get',
+      _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/storage/bucket/get',
           body: {'detailed': detailed, 'bucket': _bucketNameOrId});
 
   /// Removes all objects (e.g., files) inside the bucket. This method does not
@@ -62,8 +60,8 @@ class BucketManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  Future<APIError?> empty() async =>
-      (await fetcher.post<dynamic>('/_api/rest/v1/storage/bucket/empty', body: {
+  Future<APIError?> empty() async => (await _fetcher
+              .post<dynamic>('/_api/rest/v1/storage/bucket/empty', body: {
         'bucket': _bucketNameOrId,
       }))
           .errors;
@@ -79,7 +77,7 @@ class BucketManager extends APIBase {
   ///
   /// Returns the updated bucket information
   Future<APIResponse<Map<String, dynamic>>> rename(String newName) =>
-      fetcher.post<Map<String, dynamic>>('/_api/rest/v1/storage/bucket/rename',
+      _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/storage/bucket/rename',
           body: {'newName': newName, 'bucket': _bucketNameOrId});
 
   /// Deletes the bucket and all objects (e.g., files) inside the bucket.
@@ -88,7 +86,7 @@ class BucketManager extends APIBase {
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  Future<APIError?> delete() async => (await fetcher
+  Future<APIError?> delete() async => (await _fetcher
               .post<dynamic>('/_api/rest/v1/storage/bucket/delete', body: {
         'bucket': _bucketNameOrId,
       }))
@@ -108,24 +106,24 @@ class BucketManager extends APIBase {
   /// Returns the updated bucket information
   Future<APIResponse<Map<String, dynamic>>> makePublic(
           [bool includeFiles = false]) =>
-      fetcher.post<Map<String, dynamic>>(
+      _fetcher.post<Map<String, dynamic>>(
           '/_api/rest/v1/storage/bucket/make-public',
           body: {'includeFiles': includeFiles, 'bucket': _bucketNameOrId});
 
-  /// Sets the default privacy of the bucket to **true**. You may also choose
+  /// Sets the default privacy of the bucket to **false**. You may also choose
   /// to make the contents of the bucket publicly readable by specifying
-  /// `includeFiles=true`. This will automatically set `isPublic=true` for
+  /// `includeFiles=true`. This will automatically set `isPublic=false` for
   /// every file in the bucket.
   ///
   /// > *If the client library key is set to **enforce session**, an active
   /// user session is required (e.g., user needs to be logged in) to call
   /// this method.*
-  /// [includeFiles] Specifies whether to make each file in the bucket public.
+  /// [includeFiles] Specifies whether to make each file in the bucket private.
   ///
   /// Returns the updated bucket information
   Future<APIResponse<Map<String, dynamic>>> makePrivate(
           [bool includeFiles = false]) =>
-      fetcher.post<Map<String, dynamic>>(
+      _fetcher.post<Map<String, dynamic>>(
           '/_api/rest/v1/storage/bucket/make-private',
           body: {'includeFiles': includeFiles, 'bucket': _bucketNameOrId});
 
@@ -167,7 +165,7 @@ class BucketManager extends APIBase {
   /// information and array of files.
   Future<APIResponse<dynamic>> listFiles(
           {String? expression, FileListOptions? options}) =>
-      fetcher.post('/_api/rest/v1/storage/bucket/list-files', body: {
+      _fetcher.post('/_api/rest/v1/storage/bucket/list-files', body: {
         'expression': expression,
         'options': options?.toJson(),
         'bucket': _bucketNameOrId,
@@ -201,7 +199,7 @@ class BucketManager extends APIBase {
   /// Returns the metadata of the uploaded file
   Future<APIResponse<Map<String, dynamic>>> upload(
           String fileName, Uint8List fileBody, [FileUploadOptions? options]) =>
-      fetcher.upload<Map<String, dynamic>>(
+      _fetcher.upload<Map<String, dynamic>>(
           '/_api/rest/v1/storage/bucket/upload-formdata',
           fileBody,
           fileName,
@@ -219,7 +217,7 @@ class BucketManager extends APIBase {
   ///
   /// Returns a new [FileManager] object that will be used for managing the file
   FileManager file(String fileNameOrId) =>
-      FileManager(_bucketNameOrId, fileNameOrId, fetcher);
+      FileManager(_bucketNameOrId, fileNameOrId, _fetcher);
 
   /// Deletes multiple files identified either by their names or ids.
   ///
@@ -228,7 +226,7 @@ class BucketManager extends APIBase {
   /// this method.*
   /// [fileNamesOrIds] Array of name or ids of the files to delete.
   Future<APIError?> deleteFiles(List<String> fileNamesOrIds) async =>
-      (await fetcher.post<dynamic>('/_api/rest/v1/storage/bucket/delete-files',
+      (await _fetcher.post<dynamic>('/_api/rest/v1/storage/bucket/delete-files',
               body: {
             'fileNamesOrIds': fileNamesOrIds,
             'bucket': _bucketNameOrId
@@ -250,7 +248,7 @@ class BucketManager extends APIBase {
         tags is String || tags is List<String>,
         '[tags] must be String '
         'or List<String>');
-    return fetcher
+    return _fetcher
         .post<JsonMap>('/_api/rest/v1/storage/bucket/add-tags', body: {
       'tags': tags,
       'bucket': _bucketNameOrId,
@@ -272,7 +270,7 @@ class BucketManager extends APIBase {
         tags is String || tags is List<String>,
         '[tags] must be String '
         'or List<String>');
-    return fetcher
+    return _fetcher
         .post<JsonMap>('/_api/rest/v1/storage/bucket/remove-tags', body: {
       'tags': tags,
       'bucket': _bucketNameOrId,
@@ -300,14 +298,14 @@ class BucketManager extends APIBase {
   ///
   /// Returns the updated bucket information
   Future<APIResponse<JsonMap>> updateInfo(
-          {required String newName,
-          required bool isPublic,
+          {String? newName,
+          bool? isPublic,
           List<String> tags = const [],
           bool includeFiles = false}) =>
-      fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/update', body: {
+      _fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/update', body: {
         'tags': tags,
-        'newName': newName,
-        'isPublic': isPublic,
+        if (newName != null) 'newName': newName,
+        if (isPublic != null) 'isPublic': isPublic,
         'includeFiles': includeFiles,
         'bucket': _bucketNameOrId,
       });

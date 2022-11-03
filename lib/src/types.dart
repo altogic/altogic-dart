@@ -11,7 +11,8 @@ class User {
       required this.signUpAt,
       this.password,
       this.name,
-      this.profilePicture});
+      this.profilePicture,
+      required this.otherFields});
 
   /// Creates a instance of [User] from [JsonMap].
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -24,7 +25,22 @@ class User {
         name: json['name'] as String?,
         lastLoginAt: json['lastLoginAt'] as String,
         signUpAt: json['signUpAt'] as String,
+        otherFields: Map<String, dynamic>.from(json)
+          ..removeWhere((key, value) => _nativeFields.contains(key)),
       );
+
+  static final List<String> _nativeFields = [
+    '_id',
+    'provider',
+    'providerUserId',
+    'email',
+    'phone',
+    'password',
+    'profilePicture',
+    'name',
+    'lastLoginAt',
+    'signUpAt'
+  ];
 
   /// Convert instance to [JsonMap].
   Map<String, dynamic> toJson() => {
@@ -36,7 +52,8 @@ class User {
         if (profilePicture != null) 'profilePicture': profilePicture,
         if (name != null) 'name': name,
         'lastLoginAt': lastLoginAt,
-        'signUpAt': signUpAt
+        'signUpAt': signUpAt,
+        ...otherFields,
       };
 
   /// The unique identifier of the user
@@ -72,6 +89,9 @@ class User {
 
   /// The sign up date and time of the user
   String signUpAt;
+
+  /// Additional fields
+  Map<String, dynamic> otherFields;
 }
 
 /// Keeps session information of a specific user
@@ -261,6 +281,12 @@ class APIError implements Exception {
           .map((e) => ErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList());
 
+  Map<String, dynamic> toJson() => {
+        'status': status,
+        'statusText': statusText,
+        'items': items.map((e) => e.toJson()).toList()
+      };
+
   @override
   String toString() => 'Altogic API Error \n'
       'status: $status\n'
@@ -298,6 +324,9 @@ class ErrorEntry {
     }
   }
 
+  Map<String, dynamic> toJson() =>
+      {'origin': origin, 'code': code, 'message': message, 'details': details};
+
   @override
   String toString() => 'origin: $origin\n'
       'code: $code\n'
@@ -334,7 +363,7 @@ class MessageInfo {
 
   /// Creates a instance of [MessageInfo] from [JsonMap].
   factory MessageInfo.fromJson(Map<String, dynamic> json) => MessageInfo(
-      errors: json['errors'] as Map<String, dynamic>?,
+      errors: json['errors'],
       status: MessageStatus.values
           .where((element) => element.name == (json['status'] as String))
           .first,
@@ -611,16 +640,16 @@ class CreateOptions extends DbOperationOptions<CreateOptions> {
 
 /// Defines the options for an object set operation
 class SetOptions extends DbOperationOptions<SetOptions> {
-  const SetOptions({required this.cache, required this.returnTop});
+  const SetOptions({this.cache, required this.returnTop});
 
   @override
   Map<String, dynamic> toJson() =>
-      {'cache': cache.cacheName, 'returnTop': returnTop};
+      {if (cache != null) 'cache': cache!.cacheName, 'returnTop': returnTop};
 
   /// Specify whether to cache the set object using its id as the cache key or
   /// not. If the object is cached and the timeout has expired, the cached
   /// object will automatically be removed from the cache.
-  final Cache cache;
+  final Cache? cache;
 
   /// When you create a submodel object (a child object of a top-level object),
   /// you can specify whether to return the newly created child object or the
@@ -766,8 +795,7 @@ enum Direction { asc, desc }
 
 /// Defines the structure of a field update
 class FieldUpdate {
-  FieldUpdate(
-      {required this.field, required this.updateType, required this.value});
+  FieldUpdate({required this.field, required this.updateType, this.value});
 
   Map<String, dynamic> toJson() =>
       {'field': field, 'updateType': updateType.name, 'value': value};
@@ -885,17 +913,14 @@ class DeleteInfo {
 
 /// Defines the structure of grouped object computations. Basically, it provides
 /// aggregate calculation instructions to [QueryBuilder.compute] method
-abstract class GroupComputation {
+class GroupComputation {
   GroupComputation(
-      {required this.name,
-      required this.type,
-      required this.expression,
-      this.sort});
+      {required this.name, required this.type, this.expression, this.sort});
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'type': type.name,
-        'expression': expression,
+        'expression': expression ?? '',
         'sort': sort?.name ?? 'none'
       };
 
@@ -928,7 +953,7 @@ abstract class GroupComputation {
 
   /// The computation expression string. Except **count**, expression string is
   /// required for all other computation types.
-  String expression;
+  String? expression;
 
   ///  Defines the sort direction of computed field. If sort direction is
   ///  specified as either `asc` or `desc`, computed groups will be sorted
@@ -938,18 +963,25 @@ abstract class GroupComputation {
   Direction? sort;
 }
 
-enum GroupComputationType { count, sum }
+enum GroupComputationType {
+  /// Counts the number of objects in each group
+  count,
+  sum,
+  countif,
+  avg,
+  min,
+  max
+}
 
 /// Defines the structure how to get app buckets
-abstract class BucketListOptions {
-  BucketListOptions(
-      {required this.returnCountInfo, this.sort, this.limit, this.page});
+class BucketListOptions {
+  BucketListOptions({this.returnCountInfo, this.sort, this.limit, this.page});
 
   Map<String, dynamic> toJson() => {
         'page': page,
         'limit': limit,
         'sort': sort?.toJson(),
-        'returnCountInfo': returnCountInfo
+        if (returnCountInfo != null) 'returnCountInfo': returnCountInfo
       };
 
   /// A positive integer that specifies the page number to paginate bucket
@@ -965,7 +997,7 @@ abstract class BucketListOptions {
 
   /// Flag to specify whether to return the count and pagination information
   /// such as total number of buckets, page number and page size
-  bool returnCountInfo;
+  bool? returnCountInfo;
 }
 
 /// Defines the structure of a bucket sort entry
@@ -983,8 +1015,7 @@ class BucketSortEntry {
   Direction direction;
 }
 
-//TODO
-enum BucketSortField { name, isPublic }
+enum BucketSortField { name, isPublic, createdAt, updatedAt, userId, tags }
 
 /// Defines the structure how to get the files of a bucket
 class FileListOptions {
@@ -1112,6 +1143,8 @@ class MemberData {
   factory MemberData.fromJson(Map<String, dynamic> map) =>
       MemberData(id: map['id'] as String, data: map['data']);
 
+  Map<String, dynamic> toJson() => {'id': id, if (data != null) 'data': data};
+
   /// The unique socket id of the channel member
   String id;
 
@@ -1120,4 +1153,17 @@ class MemberData {
   /// data, and null. This data is typically set calling the
   /// [RealtimeManager.updateProfile] method.
   dynamic data;
+}
+
+class AuthState {
+  AuthState._(this.user, this.session);
+
+  final User? user;
+  final Session? session;
+
+  bool get isLoggedIn => user != null && session != null;
+
+  @override
+  String toString() =>
+      'AuthState{user: $user, session: $session}';
 }

@@ -1,5 +1,4 @@
-import '../altogic_dart.dart';
-
+part of altogic_dart;
 //ignore_for_file: constant_identifier_names
 //Because the package must be same as altogic npm client library.
 const DEFAULT_GET_OPTIONS = GetOptions(cache: Cache.nocache);
@@ -72,7 +71,7 @@ class DBObject extends APIBase {
   /// object exists in the database
   Future<APIResponse<Map<String, dynamic>>> get(
           {List<Lookup>? lookups, GetOptions? options}) =>
-      fetcher.post<Map<String, dynamic>>('/_api/rest/v1/db/object/get', body: {
+      _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/db/object/get', body: {
         'options': DEFAULT_GET_OPTIONS.merge(options).toJson(),
         'id': _id,
         'lookups': lookups?.map((e) => e.toJson()).toList(),
@@ -102,7 +101,7 @@ class DBObject extends APIBase {
   /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> create(Map<String, dynamic> values,
           {CreateOptions? options}) =>
-      fetcher
+      _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/create', body: {
         'values': values,
         'options': DEFAULT_CREATE_OPTIONS.merge(options).toJson(),
@@ -134,7 +133,7 @@ class DBObject extends APIBase {
   Future<APIResponse<Map<String, dynamic>>> set(
           Map<String, dynamic> values, String parentId,
           {SetOptions? options}) =>
-      fetcher.post<Map<String, dynamic>>('/_api/rest/v1/db/object/set', body: {
+      _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/db/object/set', body: {
         'values': values,
         'options': DEFAULT_SET_OPTIONS.merge(options).toJson(),
         'model': _modelName,
@@ -168,12 +167,12 @@ class DBObject extends APIBase {
   Future<APIResponse<Map<String, dynamic>>> append(
           Map<String, dynamic> values, String parentId,
           {AppendOptions? options}) =>
-      fetcher
+      _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/append', body: {
         'values': values,
         'options': DEFAULT_APPEND_OPTIONS.merge(options).toJson(),
         'model': _modelName,
-        'id': _id,
+        if (_id != null) 'id': _id,
         'parentId': parentId
       });
 
@@ -195,7 +194,7 @@ class DBObject extends APIBase {
   /// object is a sub-model object and if `returnTop` is set to true in
   /// [DeleteOptions], it returns the updated top-level object.
   Future<APIResponse<Map<String, dynamic>>> delete({DeleteOptions? options}) =>
-      fetcher
+      _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/delete', body: {
         'options': DEFAULT_DELETE_OPTIONS.merge(options).toJson(),
         'model': _modelName,
@@ -220,7 +219,7 @@ class DBObject extends APIBase {
   /// sub-model-list object, it returns the updated top-level object.
   Future<APIResponse<Map<String, dynamic>>> update(Map<String, dynamic> values,
           {UpdateOptions? options}) =>
-      fetcher
+      _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/update', body: {
         'values': values,
         'options': DEFAULT_UPDATE_OPTIONS.merge(options).toJson(),
@@ -246,7 +245,7 @@ class DBObject extends APIBase {
   /// object.
   Future<APIResponse<Map<String, dynamic>>> updateFields(dynamic fieldUpdates,
           {UpdateOptions? options}) =>
-      fetcher.post<Map<String, dynamic>>(
+      _fetcher.post<Map<String, dynamic>>(
           '/_api/rest/v1/db/object/update-fields',
           body: {
             'updates': (fieldUpdates is List<FieldUpdate>

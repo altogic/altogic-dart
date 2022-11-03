@@ -73,7 +73,7 @@ class EndpointManager extends APIBase {
   /// Creates an instance of [EndpointManager] to make http requests to your
   /// app endpoints.
   ///
-  /// [fetcher] The http client to make RESTful API calls to the application's
+  /// [_fetcher] The http client to make RESTful API calls to the application's
   /// execution engine
   EndpointManager(super.fetcher);
 
@@ -105,7 +105,7 @@ class EndpointManager extends APIBase {
           {Map<String, dynamic>? queryParams,
           Map<String, dynamic>? headers,
           ResolveType resolveType = ResolveType.json}) =>
-      FutureApiResponse._(fetcher.get(path,
+      FutureApiResponse._(_fetcher.get(path,
           resolveType: resolveType, headers: headers, query: queryParams));
 
   /// Makes a POST request to the endpoint path. Optionally, you can provide
@@ -139,7 +139,7 @@ class EndpointManager extends APIBase {
           Map<String, dynamic>? headers,
           Object? body,
           ResolveType resolveType = ResolveType.json}) =>
-      FutureApiResponse._(fetcher.post(path,
+      FutureApiResponse._(_fetcher.post(path,
           body: body,
           resolveType: resolveType,
           headers: headers,
@@ -176,7 +176,7 @@ class EndpointManager extends APIBase {
           Map<String, dynamic>? headers,
           Object? body,
           ResolveType resolveType = ResolveType.json}) =>
-      FutureApiResponse._(fetcher.put(path,
+      FutureApiResponse._(_fetcher.put(path,
           body: body,
           resolveType: resolveType,
           headers: headers,
@@ -213,7 +213,7 @@ class EndpointManager extends APIBase {
           Map<String, dynamic>? headers,
           Object? body,
           ResolveType resolveType = ResolveType.json}) =>
-      FutureApiResponse._(fetcher.delete(path,
+      FutureApiResponse._(_fetcher.delete(path,
           body: body,
           resolveType: resolveType,
           headers: headers,

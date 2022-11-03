@@ -1,4 +1,4 @@
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 /// The task manager allows you to manually trigger service executions of your
 /// scheduled tasks which actually ran periodically at fixed times, dates,
@@ -12,7 +12,7 @@ class TaskManager extends APIBase {
   /// Creates an instance of [TaskManager] to trigger execution of
   /// scheduled tasks.
   ///
-  /// [fetcher] The http client to make RESTful API calls to the application's
+  /// [_fetcher] The http client to make RESTful API calls to the application's
   /// execution engine.
   TaskManager(super.fetcher);
 
@@ -32,10 +32,12 @@ class TaskManager extends APIBase {
   /// [getTaskStatus] method. In case of errors, returns the errors that
   /// occurred.
   Future<APIResponse<TaskInfo>> runOnce(String taskNameOrId) async {
-    var res = await fetcher.post<Map<String, dynamic>>('/_api/rest/v1/task',
+    var res = await _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/task',
         body: {'taskNameOrId': taskNameOrId});
 
-    return APIResponse(errors: res.errors, data: TaskInfo.fromJson(res.data!));
+    return APIResponse(
+        errors: res.errors,
+        data: res.data != null ? TaskInfo.fromJson(res.data!) : null);
   }
 
   /// Gets the latest status of the task. The last seven days task execution
@@ -51,7 +53,7 @@ class TaskManager extends APIBase {
   /// If successful, returns status information about the triggered task
   Future<APIResponse<TaskInfo>> getTaskStatus(String taskId) async {
     var res =
-        await fetcher.get<Map<String, dynamic>>('/_api/rest/v1/task/$taskId');
+        await _fetcher.get<Map<String, dynamic>>('/_api/rest/v1/task/$taskId');
 
     return APIResponse(
         errors: res.errors,

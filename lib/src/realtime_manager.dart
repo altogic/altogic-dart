@@ -1,8 +1,4 @@
-import 'dart:async';
-
-import 'package:socket_io_client/socket_io_client.dart';
-
-import '../altogic_dart.dart';
+part of altogic_dart;
 
 const reconnectionDelay = 1000;
 const timout = 20000;
@@ -18,7 +14,7 @@ typedef EventCallback = void Function(dynamic data);
 /// @export
 /// @type ListenerFunction
 typedef UserEventListenerFunction = void Function(
-    String eventName, Session? session);
+    UserEvent eventName, Session? session);
 
 /// The realtime manager allows realtime publish and subscribe (pub/sub)
 /// messaging through websockets.
@@ -87,7 +83,7 @@ class RealtimeManager extends APIBase {
 
   /// Connects to the realtime server
   void _establishConnection([RealtimeOptions? options]) {
-    var urlInfo = parseRealtimeEnvUrl(fetcher.getBaseUrl());
+    var urlInfo = parseRealtimeEnvUrl(_fetcher.getBaseUrl());
 
     _socket = io(urlInfo.realtimeUrl, {
       'reconnection': true,
@@ -98,8 +94,8 @@ class RealtimeManager extends APIBase {
         'echoMessages': _echoMessages,
         'subdomain': urlInfo.subdomain,
         'envId': urlInfo.envId,
-        'clientKey': fetcher.getClientKey(),
-        'Session': fetcher.getSessionToken(),
+        'clientKey': _fetcher.getClientKey(),
+        'Session': _fetcher.getSessionToken(),
       },
     });
     _socket!.on('reconnect', (_) {
@@ -132,8 +128,8 @@ class RealtimeManager extends APIBase {
   /// disconnection `reason` as a string parameter to the callback function.
   ///
   /// [listener] The listener function.
-  void onDisconnect(void Function(String reason) listener) {
-    _socket!.json.on('disconnect', listener as void Function(dynamic));
+  void onDisconnect(void Function(dynamic reason) listener) {
+    _socket!.json.on('disconnect', listener);
   }
 
   /// Callback function fired upon a realtime connection error. Passes the
@@ -151,6 +147,7 @@ class RealtimeManager extends APIBase {
   /// this method.*
   void open() {
     if (_socket!.disconnected) _socket!.open();
+    _socket!.emitBuffered();
   }
 
   /// Manually closes the realtime connection. In this case, the socket
@@ -163,13 +160,19 @@ class RealtimeManager extends APIBase {
   /// returns the socket id
   String getSocketId() => _socket!.id!;
 
+  // TODO: Test
+
   /// Returns true if the realtime socket is connected otherwise false
   bool isConnected() => _socket!.connected;
+
+  // TODO: Test
 
   /// Register a new listener function for the given event.
   void on(String eventName, EventCallback listener) {
     _socket!.json.on(eventName, listener);
   }
+
+  // TODO: Test
 
   /// Registers a new catch-all listener function. This listener function is
   /// triggered for all messages sent to this socket.
@@ -232,10 +235,8 @@ class RealtimeManager extends APIBase {
   void broadcast(String eventName, dynamic message, [bool? echo]) {
     checkRequired('eventName', eventName);
     if (_bufferMessages) {
-      //TODO:
       _socket!.json
           .emit('message', {'eventName': eventName, 'message': message});
-      _socket!.json.emitBuffered();
     } else {
       _socket!.json.emit('message', {
         'eventName': eventName,
@@ -244,6 +245,8 @@ class RealtimeManager extends APIBase {
       });
     }
   }
+
+  // TODO: Test
 
   /// Sends the message identified by the `eventName` to the provided channel
   /// members only. All serializable datastructures are supported for the
@@ -297,10 +300,12 @@ class RealtimeManager extends APIBase {
   /// Throws an exception if `channel` is not specified
   void join(String channel, [bool? echo]) {
     checkRequired('channel', channel);
-    _socket!.json.emit('join', {channel, echo});
+    _socket!.json.emit('join', {'channel': channel, 'echo': echo});
 
     _channels[channel] = echo ?? _echoMessages;
   }
+
+  // TODO: Test
 
   /// Removes the realtime socket from the specified channel. As a result of
   /// this action a `channel:leave` event is sent to all members of the channel
@@ -319,10 +324,12 @@ class RealtimeManager extends APIBase {
   /// Throws an exception if `channel` is not specified
   void leave(String channel, [bool? echo]) {
     checkRequired('channel', channel);
-    _socket!.json.emit('leave', {channel, echo});
+    _socket!.json.emit('leave', {'channel': channel, 'echo': echo});
 
     _channels.remove(channel);
   }
+
+  // TODO: Test
 
   /// Update the current realtime socket member data and broadcast an update
   /// event to each joined channel so that other channel members can get the
@@ -348,9 +355,11 @@ class RealtimeManager extends APIBase {
   /// being echoed back on the same connection.
   ///
   void updateProfile(dynamic data, [bool? echo]) {
-    _socket!.json.emit('update', {data, echo});
+    _socket!.json.emit('update', {'data': data, 'echo': echo});
     _userData = data;
   }
+
+// TODO: Test
 
   /// Convenience method which registers a new listener function for `
   /// channel:join` events which are emitted when a new member joins a channel.
@@ -361,6 +370,8 @@ class RealtimeManager extends APIBase {
     _socket!.json.on('channel:join', listener);
   }
 
+  // TODO: Test
+
   /// Convenience method which registers a new listener function for
   /// `channel:leave` events which are emitted when an existing member leaves
   /// a channel.
@@ -370,6 +381,8 @@ class RealtimeManager extends APIBase {
     _socket!.json.on('channel:leave', listener);
   }
 
+  // TODO: Test
+
   /// Convenience method which registers a new listener function for
   /// `channel:update` events which are emitted when a channel member
   /// updates its member data.
@@ -378,6 +391,8 @@ class RealtimeManager extends APIBase {
   void onUpdate(EventCallback listener) {
     _socket!.json.on('channel:update', listener);
   }
+
+  // TODO: Test
 
   /// Returns the members of the specified channel.
   ///
@@ -395,10 +410,11 @@ class RealtimeManager extends APIBase {
     checkRequired('channel', channel);
     var completer = Completer<dynamic>();
 
-    _socket!.json.once('channel', (data) {
-      completer.complete(data);
-    });
-    _socket!.json.emit('members', {'channel': channel});
+    // _socket!.json.once('members', (data) {
+    //   completer.complete(data);
+    // });
+
+    _socket!.json.emit('members', <String, dynamic>{'channel': channel});
 
     var res =
         await completer.future.timeout(const Duration(milliseconds: timout));
@@ -410,6 +426,8 @@ class RealtimeManager extends APIBase {
     }
     return null;
   }
+
+  // TODO: Test
 
   //ignore_for_file: lines_longer_than_80_chars
 
@@ -430,21 +448,28 @@ class RealtimeManager extends APIBase {
   /// @param {ListenerFunction} listener The listener function. This function gets two input parameters the name of the event that is being triggered and the user session object that has triggered the event. If the event is triggered by the user without a session, then the session value will be `null`.
   /// @returns {void}
   void onUserEvent(UserEventListenerFunction listener) {
-    baseListener(dynamic data) {
-      var d = data as Map<String, dynamic>;
-      listener(
-          d['eventName'] as String,
-          d['session'] != null
-              ? Session.fromJson(d['session'] as Map<String, dynamic>)
-              : null);
+    var events = UserEvent.values.map((e) => 'user:${e.name}').toList();
+
+    void baseListener(dynamic data) {
+      var dataList = data as List<dynamic>;
+      var session = dataList[1] as Map<String, dynamic>?;
+      var event = dataList[0] as String;
+      listener(UserEvent.values[events.indexOf(event)],
+          session != null ? Session.fromJson(session) : null);
     }
 
-    _socket!.json.on('user:signin', baseListener);
-    _socket!.json.on('user:signout', baseListener);
-    _socket!.json.on('user:update', baseListener);
-    _socket!.json.on('user:delete', baseListener);
-    _socket!.json.on('user:pwdchange', baseListener);
-    _socket!.json.on('user:emailchange', baseListener);
-    _socket!.json.on('user:phonechange', baseListener);
+    for (var event in events) {
+      _socket!.json.on(event, baseListener);
+    }
   }
+}
+
+enum UserEvent {
+  signin,
+  signout,
+  update,
+  delete,
+  pwdchange,
+  emailchange,
+  phonechange,
 }

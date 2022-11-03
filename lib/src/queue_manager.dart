@@ -1,5 +1,4 @@
-import '../altogic_dart.dart';
-
+part of altogic_dart;
 /// The queue manager allows different parts of your application to communicate
 /// and perform activities asynchronously.
 ///
@@ -15,7 +14,7 @@ class QueueManager extends APIBase {
   /// Creates an instance of QueueManager to submit messages to your backend
   /// app message queues.
   ///
-  /// [fetcher] The http client to make RESTful API calls to the application's
+  /// [_fetcher] The http client to make RESTful API calls to the application's
   /// execution engine.
   QueueManager(super.fetcher);
 
@@ -48,7 +47,7 @@ class QueueManager extends APIBase {
       String queueNameOrId, Map<String, dynamic> message,
       [int? delay]) async {
     var res =
-        await fetcher.post<Map<String, dynamic>>('/_api/rest/v1/queue', body: {
+        await _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/queue', body: {
       'queueNameOrId': queueNameOrId,
       'message': message,
       if (delay != null) 'delay': delay
@@ -70,7 +69,7 @@ class QueueManager extends APIBase {
   ///
   /// If successful, returns status information about the submitted message
   Future<APIResponse<MessageInfo>> getMessageStatus(String messageId) async {
-    var res = await fetcher.get<Map<String, dynamic>>(
+    var res = await _fetcher.get<Map<String, dynamic>>(
       '/_api/rest/v1/queue/$messageId',
     );
     return APIResponse(

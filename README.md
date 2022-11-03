@@ -39,6 +39,10 @@ This guide will show you how to use the key modules of the client library to exe
 more in-depth coverage, see the
 [Client API reference](https://pub.dev/documentation/altogic_dart/latest/).
 
+## Example
+
+[Example/Test Application](https://github.com/yazmehmet/altogic_flutter_example)
+
 ### Authentication
 
 #### **Sign up new users with email:**
@@ -332,7 +336,6 @@ uploadFile() async {
 
 #### **List files in a bucket:**
 
-
 ```dart
 listFiles() async {
   //Returns the list of files in bucket profile-images sorted by their size in ascending order
@@ -420,13 +423,11 @@ You can use the following resources to learn more and get help
 - 📜 [Altogic Docs](https://docs.altogic.com)
 - 💬 Discord community
 
-
 ## Bugs Report
 
 Think you’ve found a bug? Please, send us an email support@altogic.com
 
 Send to mehmedyaz@gmail.com for Dart/Flutter package bugs.
-
 
 ## Support / Feedback
 
@@ -437,4 +438,5 @@ https://community.altogic.com
 
 Mehmet Yaz
 
-[Email](mailto://mehmedyaz@gmail.com) , [Twitter](https://twitter.com/smehmetyaz), [LinkedIn](https://www.linkedin.com/in/mehmetyaz/)
+[Email](mailto://mehmedyaz@gmail.com) , [Twitter](https://twitter.com/smehmetyaz)
+, [LinkedIn](https://www.linkedin.com/in/mehmetyaz/)

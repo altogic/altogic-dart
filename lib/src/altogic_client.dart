@@ -103,8 +103,9 @@ class AltogicClient {
   /// Will use [ClientOptions.localStorage] for local storage operations.
   Future<void> restoreLocalAuthSession() async {
     var session = await auth.getSession();
+    var user = await auth.getUser();
     if (session != null) {
-      _fetcher.setSession(session);
+      _fetcher.setSession(session, user);
     }
   }
 

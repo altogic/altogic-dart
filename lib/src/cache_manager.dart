@@ -28,7 +28,7 @@ class CacheManager extends APIBase {
   /// this method.*
   ///
   /// [key] The key to retrieve
-  FutureApiResponse get(String key) => FutureApiResponse._(fetcher
+  FutureApiResponse get(String key) => FutureApiResponse._(_fetcher
       .get<Map<String, dynamic>>('/_api/rest/v1/cache?key=$key')
       .then((value) =>
           APIResponse(errors: value.errors, data: value.data?['value'])));
@@ -48,7 +48,7 @@ class CacheManager extends APIBase {
   ///
   /// [ttl] Time to live in seconds
   Future<APIError?> set(String key, Object value, {int? ttl}) async =>
-      (await fetcher.post<dynamic>('/_api/rest/v1/cache',
+      (await _fetcher.post<dynamic>('/_api/rest/v1/cache',
               body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
           .errors;
 
@@ -66,7 +66,7 @@ class CacheManager extends APIBase {
       throw Exception('[keys] must be string or List<String>');
     }
 
-    return (await fetcher.delete<dynamic>('/_api/rest/v1/cache', body: {
+    return (await _fetcher.delete<dynamic>('/_api/rest/v1/cache', body: {
       'keys': keys is List ? keys : [keys.toString()],
     }))
         .errors;
@@ -92,7 +92,7 @@ class CacheManager extends APIBase {
   /// Returns the value of key after the increment
   Future<APIResponse<Map<String, dynamic>>> increment(String key,
           [int increment = 1, int? ttl]) =>
-      fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/increment',
+      _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/increment',
           body: {
             'key': key,
             'increment': increment,
@@ -119,7 +119,7 @@ class CacheManager extends APIBase {
   /// Returns the value of key after the decrement
   Future<APIResponse<Map<String, dynamic>>> decrement(String key,
           [int decrement = 1, int? ttl]) =>
-      fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/decrement',
+      _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/decrement',
           body: {
             'key': key,
             'decrement': decrement,
@@ -137,7 +137,7 @@ class CacheManager extends APIBase {
   ///
   /// [ttl] Time to live in seconds
   Future<APIError?> expire(String key, int ttl) async =>
-      (await fetcher.post<dynamic>('/_api/rest/v1/cache/expire',
+      (await _fetcher.post<dynamic>('/_api/rest/v1/cache/expire',
               body: {'key': key, 'ttl': ttl}))
           .errors;
 
@@ -151,7 +151,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns information about your app's cache storage
   Future<APIResponse<Map<String, dynamic>>> getStats() =>
-      fetcher.get<Map<String, dynamic>>('/_api/rest/v1/cache/stats');
+      _fetcher.get<Map<String, dynamic>>('/_api/rest/v1/cache/stats');
 
   //ignore_for_file:comment_references
 
@@ -189,7 +189,7 @@ class CacheManager extends APIBase {
   /// Returns the array of matching keys, their values and the next
   /// cursor if there are remaining items to paginate.
   Future<KeyListResult> listKeys(String? pattern, String? next) async {
-    var res = await fetcher.post<Map<String, dynamic>>(
+    var res = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/cache/list-keys',
         body: {'pattern': pattern, 'next': next});
 
@@ -197,7 +197,10 @@ class CacheManager extends APIBase {
       return KeyListResult(errors: res.errors);
     } else {
       return KeyListResult(
-          data: ((res.data!)['data'] as List).cast<Map<String, dynamic>>(),
+          data: ((res.data!)['data'] as List)
+              .cast<Map<dynamic, dynamic>>()
+              .map((e) => e.cast<String, dynamic>())
+              .toList(),
           next: (res.data!)['next'] as String?);
     }
   }
