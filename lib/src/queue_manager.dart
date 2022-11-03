@@ -1,4 +1,5 @@
 part of altogic_dart;
+
 /// The queue manager allows different parts of your application to communicate
 /// and perform activities asynchronously.
 ///

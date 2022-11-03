@@ -1,4 +1,5 @@
 part of altogic_dart;
+
 /// The base class where all manager classes are derived from.
 ///
 /// All manager classes interact with your app backend through the RESTful API

@@ -1,4 +1,5 @@
 part of altogic_dart;
+
 /// The database manager allows you manage your applications database.
 /// With DatabaseManager you can create new objects in your data model,
 /// update or delete existing ones, run queries and paginate over large

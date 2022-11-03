@@ -1,4 +1,5 @@
 part of altogic_dart;
+
 abstract class APIResponseBase {
   APIResponseBase({this.errors});
 

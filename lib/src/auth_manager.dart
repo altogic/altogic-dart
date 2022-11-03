@@ -536,8 +536,7 @@ class AuthManager extends APIBase {
     await _deleteLocalData();
     await _saveLocalData(userSession.user!, userSession.session!);
 
-    _fetcher.setSession(
-        userSession.session!, userSession.user);
+    _fetcher.setSession(userSession.session!, userSession.user);
 
     return userSession;
   }

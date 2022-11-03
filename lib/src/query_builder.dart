@@ -1,4 +1,5 @@
 part of altogic_dart;
+
 /// The query builder is primarily used to build database queries or run CRUD
 /// operations on a model (i.e., table, collection) of your application.
 ///

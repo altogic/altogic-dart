@@ -1164,6 +1164,5 @@ class AuthState {
   bool get isLoggedIn => user != null && session != null;
 
   @override
-  String toString() =>
-      'AuthState{user: $user, session: $session}';
+  String toString() => 'AuthState{user: $user, session: $session}';
 }

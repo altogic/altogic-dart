@@ -1,4 +1,5 @@
 part of altogic_dart;
+
 //ignore_for_file: constant_identifier_names
 //Because the package must be same as altogic npm client library.
 const DEFAULT_GET_OPTIONS = GetOptions(cache: Cache.nocache);
