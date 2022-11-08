@@ -47,7 +47,7 @@ class CacheManager extends APIBase {
   /// [value] The value to set
   ///
   /// [ttl] Time to live in seconds
-  Future<APIError?> set(String key, Object value, {int? ttl}) async =>
+  Future<APIError?> set(String key, Object value, [int? ttl]) async =>
       (await _fetcher.post<dynamic>('/_api/rest/v1/cache',
               body: {'key': key, 'value': value, if (ttl != null) 'ttl': ttl}))
           .errors;
@@ -91,7 +91,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the value of key after the increment
   Future<APIResponse<Map<String, dynamic>>> increment(String key,
-          [int increment = 1, int? ttl]) =>
+          {int increment = 1, int? ttl}) =>
       _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/increment',
           body: {
             'key': key,
@@ -118,7 +118,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the value of key after the decrement
   Future<APIResponse<Map<String, dynamic>>> decrement(String key,
-          [int decrement = 1, int? ttl]) =>
+  {int decrement = 1, int? ttl}) =>
       _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/decrement',
           body: {
             'key': key,

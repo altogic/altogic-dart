@@ -582,7 +582,7 @@ abstract class Lookup {
 
 /// Defines the structure of a simple lookup
 class SimpleLookup extends Lookup {
-  SimpleLookup({required this.field});
+  SimpleLookup( this.field);
 
   @override
   Map<String, dynamic> toJson() => {
@@ -686,11 +686,13 @@ class AppendOptions extends DbOperationOptions<AppendOptions> {
 
 /// Defines the options for an object delete operation
 class DeleteOptions extends DbOperationOptions<DeleteOptions> {
-  const DeleteOptions({required this.returnTop, required this.removeFromCache});
+  const DeleteOptions({this.returnTop, this.removeFromCache});
 
   @override
-  Map<String, dynamic> toJson() =>
-      {'removeFromCache': removeFromCache, 'returnTop': returnTop};
+  Map<String, dynamic> toJson() => {
+        if (removeFromCache != null) 'removeFromCache': removeFromCache,
+        if (returnTop != null) 'returnTop': returnTop
+      };
 
   @override
   DeleteOptions merge(DeleteOptions? other) => DeleteOptions(
@@ -699,11 +701,11 @@ class DeleteOptions extends DbOperationOptions<DeleteOptions> {
 
   /// Specify whether to remove deleted object from cache using deleted object
   /// id as the cache key.
-  final bool removeFromCache;
+  final bool? removeFromCache;
 
   /// In case if you delete a submodel object (a child object of a top-level
   /// object), you can specify whether to return the updated top-level object.
-  final bool returnTop;
+  final bool? returnTop;
 }
 
 /// Defines the options for an object update operation

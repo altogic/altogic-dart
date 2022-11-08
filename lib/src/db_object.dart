@@ -101,7 +101,7 @@ class DBObject extends APIBase {
   ///
   /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> create(Map<String, dynamic> values,
-          {CreateOptions? options}) =>
+          [CreateOptions? options]) =>
       _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/create', body: {
         'values': values,
@@ -133,7 +133,7 @@ class DBObject extends APIBase {
   /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> set(
           Map<String, dynamic> values, String parentId,
-          {SetOptions? options}) =>
+          [SetOptions? options]) =>
       _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/db/object/set', body: {
         'values': values,
         'options': DEFAULT_SET_OPTIONS.merge(options).toJson(),
@@ -167,7 +167,7 @@ class DBObject extends APIBase {
   /// Returns the newly create object in the database.
   Future<APIResponse<Map<String, dynamic>>> append(
           Map<String, dynamic> values, String parentId,
-          {AppendOptions? options}) =>
+          [AppendOptions? options]) =>
       _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/append', body: {
         'values': values,
@@ -194,7 +194,7 @@ class DBObject extends APIBase {
   /// Returns null if the deleted object is a top-level object. If the deleted
   /// object is a sub-model object and if `returnTop` is set to true in
   /// [DeleteOptions], it returns the updated top-level object.
-  Future<APIResponse<Map<String, dynamic>>> delete({DeleteOptions? options}) =>
+  Future<APIResponse<Map<String, dynamic>>> delete([DeleteOptions? options]) =>
       _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/delete', body: {
         'options': DEFAULT_DELETE_OPTIONS.merge(options).toJson(),
@@ -219,7 +219,7 @@ class DBObject extends APIBase {
   /// in [UpdateOptions] and if the updated object is a sub-model or
   /// sub-model-list object, it returns the updated top-level object.
   Future<APIResponse<Map<String, dynamic>>> update(Map<String, dynamic> values,
-          {UpdateOptions? options}) =>
+          [UpdateOptions? options]) =>
       _fetcher
           .post<Map<String, dynamic>>('/_api/rest/v1/db/object/update', body: {
         'values': values,
@@ -245,7 +245,7 @@ class DBObject extends APIBase {
   /// sub-model or sub-model-list object, it returns the updated top-level
   /// object.
   Future<APIResponse<Map<String, dynamic>>> updateFields(dynamic fieldUpdates,
-          {UpdateOptions? options}) =>
+          [UpdateOptions? options]) =>
       _fetcher.post<Map<String, dynamic>>(
           '/_api/rest/v1/db/object/update-fields',
           body: {

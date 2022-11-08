@@ -1,3 +1,8 @@
+## 0.0.9+1
+
+- New parameter policy: If any method has only one optional parameter, the parameter is positioned. And if any method has multiple optional parameters, the parameters are named.
+
+
 ## 0.0.9
 
 - Bug Fixes
