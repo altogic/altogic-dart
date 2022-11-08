@@ -118,7 +118,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the value of key after the decrement
   Future<APIResponse<Map<String, dynamic>>> decrement(String key,
-  {int decrement = 1, int? ttl}) =>
+          {int decrement = 1, int? ttl}) =>
       _fetcher.post<Map<String, dynamic>>('/_api/rest/v1/cache/decrement',
           body: {
             'key': key,

@@ -582,7 +582,7 @@ abstract class Lookup {
 
 /// Defines the structure of a simple lookup
 class SimpleLookup extends Lookup {
-  SimpleLookup( this.field);
+  SimpleLookup(this.field);
 
   @override
   Map<String, dynamic> toJson() => {
