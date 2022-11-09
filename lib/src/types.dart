@@ -1,6 +1,36 @@
 part of altogic_dart;
 
 /// Provides info about a user.
+///
+/// [User] has Altogic *users* model's default properties.
+///
+/// If you have custom properties in your *users* model, you can add or read
+/// them with "[]" and  "[]=" operators.
+///
+///
+/// E.g. If your user model has a property named *age*, you can read it with:
+/// ```dart
+/// var age = user['age'];
+/// ```
+///
+/// Or you can add a property named *age* with:
+/// ```dart
+/// user['age'] = 30;
+/// ```
+///
+/// Or you can crate a new [User] implementation with a property named *age*:
+/// ```dart
+/// class MyUser extends User {
+///   MyUser(User user) : super.fromUser(user);
+///
+///   int get age => this['age'] as int;
+///
+///   set age(int value) => this['age'] = value;
+///
+/// }
+/// ```
+///
+/// For custom fields, implementing new [User] implementations is recommended.
 class User {
   /// Creates a instance of [User]
   User(this.id,
@@ -12,7 +42,37 @@ class User {
       this.password,
       this.name,
       this.profilePicture,
-      required this.otherFields});
+      required Map<String, dynamic> otherFields})
+      : _otherFields = otherFields;
+
+  /// Using this constructor as super constructor you can create a custom
+  /// [User] implementation instance from a [User].
+  ///
+  /// E.g. If you have a custom [User] implementation named *MyUser*:
+  ///
+  /// ```dart
+  /// class MyUser extends User {
+  ///  MyUser(User user) : super.fromUser(user);
+  ///
+  ///  int get age => this['age'] as int;
+  ///
+  ///  set age(int value) => this['age'] = value;
+  ///
+  /// }
+  /// ```
+  ///
+  /// For custom fields, implementing new [User] implementations is recommended.
+  User.fromUser(User user)
+      : id = user.id,
+        mailOrPhone = user.mailOrPhone,
+        provider = user.provider,
+        providerUserId = user.providerUserId,
+        lastLoginAt = user.lastLoginAt,
+        signUpAt = user.signUpAt,
+        password = user.password,
+        name = user.name,
+        profilePicture = user.profilePicture,
+        _otherFields = user._otherFields;
 
   /// Creates a instance of [User] from [JsonMap].
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -53,8 +113,54 @@ class User {
         if (name != null) 'name': name,
         'lastLoginAt': lastLoginAt,
         'signUpAt': signUpAt,
-        ...otherFields,
+        ..._otherFields,
       };
+
+  /// Get the value of a custom field.
+  ///
+  /// With this operator you can *ONLY* read custom fields of a [User]. For
+  /// default fields use the corresponding getter.
+  ///
+  /// E.g. If your user model has a property named *age*, you can read it with:
+  /// ```dart
+  /// var age = user['age']; // 18
+  ///
+  /// var name = user['name']; // null
+  /// name = user.name; // 'John'
+  /// ```
+  ///
+  /// For custom fields, implementing new [User] implementations is recommended.
+  /// For more info see [User.fromUser] constructor.
+  dynamic operator [](String key) {
+    assert(
+        !_nativeFields.contains(key),
+        'You can not use [] operator for native fields.'
+        ' Use the corresponding getter.');
+    return _otherFields[key];
+  }
+
+  /// Set the value of a custom field.
+  ///
+  /// With this operator you can *ONLY* set custom fields of a [User].
+  /// For default fields use the corresponding setter.
+  ///
+  /// E.g. If your user model has a property named *age*, you can set it with:
+  ///
+  /// ```dart
+  /// user['age'] = 18;
+  ///
+  /// user.name = 'John';
+  ///
+  /// user['name'] = 'John'; // throws an exception
+  /// ```
+  ///
+  /// For custom fields, implementing new [User] implementations is recommended.
+  /// For more info see [User.fromUser] constructor.
+  void operator []=(String key, dynamic value) {
+    assert(!_nativeFields.contains(key),
+        'Cannot set native field $key. Use the corresponding setter.');
+    _otherFields[key] = value;
+  }
 
   /// The unique identifier of the user
   String id;
@@ -90,8 +196,8 @@ class User {
   /// The sign up date and time of the user
   String signUpAt;
 
-  /// Additional fields
-  Map<String, dynamic> otherFields;
+  /// Additional fields of Altogic *users* model.
+  Map<String, dynamic> _otherFields;
 }
 
 /// Keeps session information of a specific user
@@ -215,7 +321,7 @@ class ClientOptions {
   /// made to your app backend. If it detects a response with an error code of
   /// missing or invalid session token, it can redirect the users to
   /// this signin url.
-  String? signInRedirect;
+  void Function()? signInRedirect;
 
   /// The configuration parameters for websocket connections
   RealtimeOptions? realtime;
@@ -574,14 +680,25 @@ enum Cache {
   final String cacheName;
 }
 
+/// Look up (left outer join) the specified field [SimpleLookup] of the model
+/// or perform specified lookup query [ComplexLookup] when getting data form
+/// the database.
 ///
+/// [Lookup] is used to wrap [SimpleLookup] and [ComplexLookup] to provide
+/// a common interface for [DBObject.get] and [QueryBuilder.lookup].
 abstract class Lookup {
   /// Lookup abstraction.
   Map<String, dynamic> toJson();
 }
 
-/// Defines the structure of a simple lookup
+/// Defines the structure of a simple lookup.
+///
+/// For [Lookup] documentation see [DBObject.get] and [QueryBuilder.lookup].
 class SimpleLookup extends Lookup {
+
+  /// Creates a instance of [SimpleLookup]
+  ///
+  /// [field] is the field name to lookup
   SimpleLookup(this.field);
 
   @override
@@ -601,6 +718,8 @@ class SimpleLookup extends Lookup {
 }
 
 /// Defines the structure of a complex lookup
+///
+/// For [Lookup] documentation see [DBObject.get] and [QueryBuilder.lookup].
 class ComplexLookup extends Lookup {
   ComplexLookup(
       {required this.name, required this.modelName, required this.query});
@@ -1157,12 +1276,21 @@ class MemberData {
   dynamic data;
 }
 
+/// User Authentication Status
+///
+/// If the user is authenticated, the [isLoggedIn] will be true.
+///
+/// When the user is authenticated, [user] and [session] will not be null.
 class AuthState {
   AuthState._(this.user, this.session);
 
+  /// The user object
   final User? user;
+
+  /// The session object
   final Session? session;
 
+  /// Returns true if the user is authenticated
   bool get isLoggedIn => user != null && session != null;
 
   @override

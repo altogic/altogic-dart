@@ -14,6 +14,7 @@ String normalizeUrl(String url) => removeTrailingSlash(url.trim());
 
 const dynamic Function(String param) getParamValue = pl.platformGetParamValue;
 
+/// Checks if the input string is valid.
 void checkRequired(String fieldName, dynamic fieldValue,
     {bool checkEmptyString = true}) {
   if (fieldValue == null) {

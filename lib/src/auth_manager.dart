@@ -37,29 +37,39 @@ class AuthManager extends APIBase {
   /// Creates an instance of [AuthManager] to manage your application users and
   /// user sessions.
   ///
-  /// [fetcher] The http client to make RESTful API calls to the
-  /// application's execution engine
-  ///
-  /// [clientOptions] Altogic client options
-  AuthManager(
-      AltogicClient client, Fetcher fetcher, ClientOptions clientOptions)
-      : _localStorage = clientOptions.localStorage,
-        _singInRedirect = clientOptions.signInRedirect,
+  AuthManager(AltogicClient client)
+      : _localStorage = client.settings.localStorage,
+        _singInRedirect = client.settings.signInRedirect,
         _client = client,
-        super(fetcher);
+        super(client._fetcher);
 
   /// Storage handler to manage local user and session data
   final ClientStorage? _localStorage;
 
   /// Sign in page url to redirect when the user's session becomes invalid
-  final String? _singInRedirect;
+  final void Function()? _singInRedirect;
 
   /// Reference to the Altogic client library realtime manager
   final AltogicClient _client;
 
+  /// AuthState changes stream.
+  ///
+  /// This stream is used to notify the client when the user's authentication
+  /// state changes. For example, when the user signs in or out, or when the
+  /// user's session becomes invalid.
+  ///
+  /// Check [AuthState] for more details.
   Stream<AuthState> get authStateChanges =>
       _fetcher._userStreamController.stream;
 
+  /// Current auth state of the user
+  ///
+  /// If [AuthState.isLoggedIn] is true, the user is signed in.
+  ///
+  /// [AuthState.user] contains the user data.
+  ///
+  /// [AuthState.session] contains the session data.
+  ///
   AuthState get currentState => _fetcher._state;
 
   /// Deletes the currently active session and user data in local storage.
@@ -96,9 +106,7 @@ class AuthManager extends APIBase {
   Future<void> invalidateSession() async {
     await _deleteLocalData();
     _fetcher.clearSession();
-    if (_singInRedirect != null) {
-      setRedirect(_singInRedirect);
-    }
+    _singInRedirect?.call();
   }
 
   /// Returns the currently active session data from local storage.
@@ -524,7 +532,7 @@ class AuthManager extends APIBase {
     var tokenStr = accessToken ?? getParamValue('access_token');
 
     var res = await _fetcher.get<Map<String, dynamic>>(
-        '/_api/rest/v1/auth/grant?key=${tokenStr ?? ""}');
+        '/_api/rest/v1/auth/grant?key=${tokenStr ?? ''}');
 
     if (res.errors != null) return UserSessionResult(errors: res.errors);
 

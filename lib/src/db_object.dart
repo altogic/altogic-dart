@@ -2,14 +2,25 @@ part of altogic_dart;
 
 //ignore_for_file: constant_identifier_names
 //Because the package must be same as altogic npm client library.
+
+/// Default [GetOptions] for [DBObject.get]
 const DEFAULT_GET_OPTIONS = GetOptions(cache: Cache.nocache);
+
+/// Default [CreateOptions] for [DBObject.create]
 const DEFAULT_CREATE_OPTIONS = CreateOptions(cache: Cache.nocache);
+
+/// Default [SetOptions] for [DBObject.set]
 const DEFAULT_SET_OPTIONS = SetOptions(cache: Cache.nocache, returnTop: false);
+
+/// Default [AppendOptions] for [DBObject.append]
 const DEFAULT_APPEND_OPTIONS =
     AppendOptions(cache: Cache.nocache, returnTop: false);
 
+/// Default [DeleteOptions] for [DBObject.delete]
 const DEFAULT_DELETE_OPTIONS =
     DeleteOptions(removeFromCache: true, returnTop: false);
+
+/// Default [UpdateOptions] for [DBObject.update]
 const DEFAULT_UPDATE_OPTIONS =
     UpdateOptions(cache: Cache.nocache, returnTop: false);
 

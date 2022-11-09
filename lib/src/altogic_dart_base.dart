@@ -8,9 +8,6 @@ import 'package:socket_io_client/socket_io_client.dart';
 
 import '../altogic_dart.dart';
 
-import 'utils/platform_auth/stub_auth.dart'
-    if (dart.library.html) 'utils/platform_auth/web_auth.dart'
-    if (dart.library.io) 'utils/platform_auth/io_auth.dart' show setRedirect;
 
 import 'utils/platform_fetcher/stub_fetcher.dart'
     if (dart.library.html) 'utils/platform_fetcher/web_fetcher.dart'

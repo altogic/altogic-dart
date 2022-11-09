@@ -86,7 +86,7 @@ class AltogicClient {
 
     // Set the default headers
     var headers = <String, String>{
-      'X-Client': 'altogic-js',
+      'X-Client': 'altogic-dart',
       'X-Client-Key': clientKey,
     };
 
@@ -101,7 +101,7 @@ class AltogicClient {
   /// Restore auth session that saved from local storage.
   ///
   /// Will use [ClientOptions.localStorage] for local storage operations.
-  Future<void> restoreLocalAuthSession() async {
+  Future<void> restoreAuthSession() async {
     var session = await auth.getSession();
     var user = await auth.getUser();
     if (session != null) {
@@ -150,8 +150,7 @@ class AltogicClient {
 
   /// Returns the authentication manager that can be used to perform user
   /// and session management activities.
-  AuthManager get auth =>
-      _authManager ??= AuthManager(this, _fetcher, settings);
+  AuthManager get auth => _authManager ??= AuthManager(this);
 
   /// Returns the endpoint manager which is used to make http requests to
   /// your app endpoints and execute associated services.

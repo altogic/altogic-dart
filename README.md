@@ -81,6 +81,8 @@ authFunctions() async {
 }
 ```
 
+> **Note:** Check [altogic package](https://pub.dev/packages/altogic) for learning how to handle redirect urls.
+
 #### **Sign up new users with mobile phone number:**
 
 If phone number confirmation is **enabled** in your app authentication settings then a confirmation code SMS will be
