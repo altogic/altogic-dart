@@ -1,10 +1,10 @@
 ## 0.0.9+3
 
-- [AltogicClient.restoreLocalAuthSession] name changed to [AltogicClient.restoreAuthSession]. Because it can restore session from local storage or from a deep link in flutter.
-- [AuthManager] constructor now takes only [AltogicClient].
+- `AltogicClient.restoreLocalAuthSession` name changed to `AltogicClient.restoreAuthSession`. Because it can restore session from local storage or from a deep link in flutter.
+- ``AuthManager`` constructor now takes only `AltogicClient`.
 - platform_auth removed
-- [ClientOptions.signInRedirect] now is a [void Function()]. (In Flutter, it is called with a [BuildContext] parameter)
-- Added ([]) and ([]=) operators to [User] for custom fields.
+- ``ClientOptions.signInRedirect`` now is a `void Function()`. (In Flutter, it is called with a `BuildContext` parameter)
+- Added `[]` and `[]=` operators to ``User`` for custom fields.
 - Many documentation improvements.
 
 ## 0.0.9+2
