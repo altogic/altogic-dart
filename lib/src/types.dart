@@ -695,7 +695,6 @@ abstract class Lookup {
 ///
 /// For [Lookup] documentation see [DBObject.get] and [QueryBuilder.lookup].
 class SimpleLookup extends Lookup {
-
   /// Creates a instance of [SimpleLookup]
   ///
   /// [field] is the field name to lookup

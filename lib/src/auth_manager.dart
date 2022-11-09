@@ -171,6 +171,7 @@ class AuthManager extends APIBase {
     if (_localStorage != null) {
       await _localStorage!.setItem('user', json.encode(user.toJson()));
     }
+    _fetcher._setUser(user);
   }
 
   /// Sign up methods wrapper.

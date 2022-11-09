@@ -1,6 +1,5 @@
 part of altogic_dart;
 
-
 /// All API responses are wrapped in this class.
 ///
 /// All responses has nullable [errors] property.
@@ -43,7 +42,6 @@ class UserSessionResult extends APIResponseBase {
   Session? session;
 }
 
-
 /// [AuthManager.changeEmail] , [AuthManager.changePhone] and
 /// [AuthManager.getUserFromDB] returns this class.
 class UserResult extends APIResponseBase {
@@ -61,7 +59,6 @@ class SessionResult extends APIResponseBase {
   /// Sessions
   List<Session>? sessions;
 }
-
 
 /// Cached keys list response.
 /// Same as [APIResponse], If response success, [errors] will be null and

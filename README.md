@@ -107,7 +107,7 @@ authFunction() async {
 
 #### **Sign up/sign-in users with an oAuth provider:**
 
-See [altogic_flutter](https://pub.dev/packages/altogic_flutter) package.
+See [altogic](https://pub.dev/packages/altogic) package for designed for Flutter.
 
 ### Database
 

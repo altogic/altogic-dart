@@ -39,6 +39,11 @@ class Fetcher {
 
   AuthState _state = AuthState._(null, null);
 
+  void _setUser(User user) {
+    _state = AuthState._(user, session);
+    _userStreamController.sink.add(_state);
+  }
+
   /// Creates an instance of Fetcher.
   ///
   /// [restUrl] The base URL that will be prepended to all
