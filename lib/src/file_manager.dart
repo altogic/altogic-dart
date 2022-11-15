@@ -248,11 +248,13 @@ class FileManager extends APIBase {
   ///
   /// Returns the updated file information
   Future<APIResponse<JsonMap>> updateInfo(
-          {String? newName, bool? isPublic, List<String>? tags}) =>
+          {required String newName,
+          required bool isPublic,
+          required List<String> tags}) =>
       _fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/file/update', body: {
-        if (tags != null) 'tags': tags,
-        if (newName != null) 'newName': newName,
-        if (isPublic != null) 'isPublic': isPublic,
+        'tags': tags,
+        'newName': newName,
+        'isPublic': isPublic,
         'bucket': _bucketNameOrId,
         'file': _fileNameOrId
       });

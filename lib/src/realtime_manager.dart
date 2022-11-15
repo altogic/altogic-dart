@@ -44,7 +44,7 @@ typedef UserEventListenerFunction = void Function(
 /// listen to `connect` and `disconnect` events to manage your channel
 /// subscriptions.
 class RealtimeManager extends APIBase {
-  RealtimeManager(super.fetcher, {RealtimeOptions? options})
+  RealtimeManager(super.fetcher, [RealtimeOptions? options])
       : _echoMessages = options?.echoMessages ?? true,
         _bufferMessages = options?.bufferMessages ?? true,
         _autoJoinChannels = options?.autoJoinChannels ?? true {

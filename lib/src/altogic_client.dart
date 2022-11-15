@@ -82,7 +82,7 @@ class AltogicClient {
       throw ClientError('missing_required_value',
           'envUrl is a required parameter and needs to start with https://');
     }
-    settings = _defaultOptions._merge(options);
+    _settings = _defaultOptions._merge(options);
 
     // Set the default headers
     var headers = <String, String>{
@@ -91,8 +91,8 @@ class AltogicClient {
     };
 
     // If apiKey is provided, add it to the default headers
-    if (settings.apiKey != null) {
-      headers['Authorization'] = settings.apiKey!;
+    if (_settings.apiKey != null) {
+      headers['Authorization'] = _settings.apiKey!;
     }
     // Create the http client to manage RESTful API calls
     _fetcher = Fetcher(this, normalizeUrl(envUrl), headers);
@@ -116,7 +116,7 @@ class AltogicClient {
   late Fetcher _fetcher;
 
   /// Altogic client options
-  late final ClientOptions settings;
+  late final ClientOptions _settings;
 
   /// [AuthManager] object is used to manage user authentication and sessions
   AuthManager? _authManager;
@@ -184,5 +184,5 @@ class AltogicClient {
   /// user session is required (e.g., user needs to be logged in) to establish
   /// a realtime connection.*
   RealtimeManager get realtime =>
-      _realtimeManager ??= RealtimeManager(_fetcher);
+      _realtimeManager ??= RealtimeManager(_fetcher, _settings.realtime);
 }

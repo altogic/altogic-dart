@@ -28,7 +28,7 @@ class QueryBuilder extends APIBase {
   ///
   /// [fetcher] The http client to make RESTful API calls to the application's
   /// execution engine.
-  QueryBuilder({required String modelName, required Fetcher fetcher})
+  QueryBuilder(String modelName, Fetcher fetcher)
       : _modelName = modelName,
         _action = DBAction(),
         super(fetcher);

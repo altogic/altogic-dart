@@ -1,6 +1,6 @@
-## 0.0.9+5
+## 0.0.9+6
 
-- `AltogicClient.restoreLocalAuthSession` name changed to `AltogicClient.restoreAuthSession`. Because it can restore session from local storage or from a deep link in flutter.
+- `AltogicClient.restoreLocalAuthSession` name changed to `AltogicClient.restoreAuthSession`. Because it can restore session from local storage or checks .
 - ``AuthManager`` constructor now takes only `AltogicClient`.
 - platform_auth removed
 - ``ClientOptions.signInRedirect`` now is a `void Function()`. (In Flutter, it is called with a `BuildContext` parameter)

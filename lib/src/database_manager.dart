@@ -31,8 +31,7 @@ class DatabaseManager extends APIBase {
   ///
   /// Returns a new query builder object that will be issuing
   /// database commands (e.g., CRUD operations, queries) on the specified model
-  QueryBuilder model(String name) =>
-      QueryBuilder(modelName: name, fetcher: _fetcher);
+  QueryBuilder model(String name) => QueryBuilder(name, _fetcher);
 
   /// Returns the overall information about your apps database and its models.
   ///

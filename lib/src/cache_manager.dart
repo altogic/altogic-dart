@@ -188,7 +188,7 @@ class CacheManager extends APIBase {
   ///
   /// Returns the array of matching keys, their values and the next
   /// cursor if there are remaining items to paginate.
-  Future<KeyListResult> listKeys(String? pattern, String? next) async {
+  Future<KeyListResult> listKeys({String? pattern, String? next}) async {
     var res = await _fetcher.post<Map<String, dynamic>>(
         '/_api/rest/v1/cache/list-keys',
         body: {'pattern': pattern, 'next': next});
