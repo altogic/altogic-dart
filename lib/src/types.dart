@@ -335,6 +335,13 @@ class ClientOptions {
 
 /// The options that can be passed to the client instance realtime module
 class RealtimeOptions {
+  RealtimeOptions(
+      {this.timeout,
+      this.autoJoinChannels,
+      this.bufferMessages,
+      this.echoMessages,
+      this.reconnectionDelay});
+
   /// The flag to enable or prevent automatic join to channels already
   /// subscribed in case of websocket reconnection. When websocket is
   /// disconnected, it automatically leaves subscribed channels.
@@ -606,20 +613,20 @@ abstract class DbOperationOptions<T> {
 /// Defines the options for an object read operation
 class GetOptions extends DbOperationOptions<GetOptions> {
   /// Creates a instance of [User]
-  const GetOptions({required this.cache});
+  const GetOptions([this.cache]);
 
   /// Convert instance to [JsonMap].
   @override
-  Map<String, dynamic> toJson() => {'cache': cache.cacheName};
+  Map<String, dynamic> toJson() =>
+      {if (cache != null) 'cache': cache!.cacheName};
 
   /// Specify whether to cache the retrieved object using its id as the cache
   /// key or not. If the object is cached and the timeout has expired, the
   /// cached object will automatically be removed from the cache.
-  final Cache cache;
+  final Cache? cache;
 
   @override
-  GetOptions merge(GetOptions? other) =>
-      GetOptions(cache: other?.cache ?? cache);
+  GetOptions merge(GetOptions? other) => GetOptions(other?.cache ?? cache);
 }
 
 enum Cache {
@@ -741,19 +748,20 @@ class ComplexLookup extends Lookup {
 
 /// Defines the options for an object create operation
 class CreateOptions extends DbOperationOptions<CreateOptions> {
-  const CreateOptions({required this.cache});
+  const CreateOptions([this.cache]);
 
   @override
-  Map<String, dynamic> toJson() => {'cache': cache.cacheName};
+  Map<String, dynamic> toJson() =>
+      {if (cache != null) 'cache': cache!.cacheName};
 
   /// Specify whether to cache the created object using its id as the cache key
   /// or not. If the object is cached and the timeout has expired, the cached
   /// object will automatically be removed from the cache.
-  final Cache cache;
+  final Cache? cache;
 
   @override
   CreateOptions merge(CreateOptions? other) =>
-      CreateOptions(cache: other?.cache ?? cache);
+      CreateOptions(other?.cache ?? cache);
 }
 
 /// Defines the options for an object set operation
@@ -785,12 +793,12 @@ class AppendOptions extends DbOperationOptions<AppendOptions> {
 
   @override
   Map<String, dynamic> toJson() =>
-      {'cache': cache.cacheName, 'returnTop': returnTop};
+      {if (cache != null) 'cache': cache!.cacheName, 'returnTop': returnTop};
 
   /// Specify whether to cache the appended object using its id as the cache
   /// key or not. If the object is cached and the timeout has expired, the
   /// cached object will automatically be removed from the cache.
-  final Cache cache;
+  final Cache? cache;
 
   /// When you create a submodel object (a child object of a top-level object),
   /// you can specify whether to return the newly created child object or the
@@ -832,7 +840,7 @@ class UpdateOptions extends DbOperationOptions<UpdateOptions> {
 
   @override
   Map<String, dynamic> toJson() =>
-      {'cache': cache.cacheName, 'returnTop': returnTop};
+      {if (cache != null) 'cache': cache!.cacheName, 'returnTop': returnTop};
 
   @override
   UpdateOptions merge(UpdateOptions? other) => UpdateOptions(
@@ -841,7 +849,7 @@ class UpdateOptions extends DbOperationOptions<UpdateOptions> {
   /// Specify whether to cache the updated object using its id as the cache key
   /// or not. If the object is cached and the timeout has expired, the cached
   /// object will automatically be removed from the cache.
-  final Cache cache;
+  final Cache? cache;
 
   /// In case if you update a submodel object (a child object of a top-level
   /// object), you can specify whether to return the newly updated child object

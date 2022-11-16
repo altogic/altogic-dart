@@ -44,7 +44,7 @@ typedef UserEventListenerFunction = void Function(
 /// listen to `connect` and `disconnect` events to manage your channel
 /// subscriptions.
 class RealtimeManager extends APIBase {
-  RealtimeManager(super.fetcher, {RealtimeOptions? options})
+  RealtimeManager(super.fetcher, [RealtimeOptions? options])
       : _echoMessages = options?.echoMessages ?? true,
         _bufferMessages = options?.bufferMessages ?? true,
         _autoJoinChannels = options?.autoJoinChannels ?? true {
@@ -98,7 +98,7 @@ class RealtimeManager extends APIBase {
         'Session': _fetcher.getSessionToken(),
       },
     });
-    _socket!.on('reconnect', (_) {
+    _socket!.on('connect', (_) {
       if (_autoJoinChannels) _joinChannels();
     });
   }
@@ -160,19 +160,13 @@ class RealtimeManager extends APIBase {
   /// returns the socket id
   String getSocketId() => _socket!.id!;
 
-  // TODO: Test
-
   /// Returns true if the realtime socket is connected otherwise false
   bool isConnected() => _socket!.connected;
-
-  // TODO: Test
 
   /// Register a new listener function for the given event.
   void on(String eventName, EventCallback listener) {
     _socket!.json.on(eventName, listener);
   }
-
-  // TODO: Test
 
   /// Registers a new catch-all listener function. This listener function is
   /// triggered for all messages sent to this socket.
@@ -246,8 +240,6 @@ class RealtimeManager extends APIBase {
     }
   }
 
-  // TODO: Test
-
   /// Sends the message identified by the `eventName` to the provided channel
   /// members only. All serializable datastructures are supported for the
   /// `message`, including `Buffer`.
@@ -305,8 +297,6 @@ class RealtimeManager extends APIBase {
     _channels[channel] = echo ?? _echoMessages;
   }
 
-  // TODO: Test
-
   /// Removes the realtime socket from the specified channel. As a result of
   /// this action a `channel:leave` event is sent to all members of the channel
   /// notifying the departure of existing member.
@@ -328,8 +318,6 @@ class RealtimeManager extends APIBase {
 
     _channels.remove(channel);
   }
-
-  // TODO: Test
 
   /// Update the current realtime socket member data and broadcast an update
   /// event to each joined channel so that other channel members can get the
@@ -359,8 +347,6 @@ class RealtimeManager extends APIBase {
     _userData = data;
   }
 
-// TODO: Test
-
   /// Convenience method which registers a new listener function for `
   /// channel:join` events which are emitted when a new member joins a channel.
   ///
@@ -369,8 +355,6 @@ class RealtimeManager extends APIBase {
   void onJoin(EventCallback listener) {
     _socket!.json.on('channel:join', listener);
   }
-
-  // TODO: Test
 
   /// Convenience method which registers a new listener function for
   /// `channel:leave` events which are emitted when an existing member leaves
@@ -381,8 +365,6 @@ class RealtimeManager extends APIBase {
     _socket!.json.on('channel:leave', listener);
   }
 
-  // TODO: Test
-
   /// Convenience method which registers a new listener function for
   /// `channel:update` events which are emitted when a channel member
   /// updates its member data.
@@ -391,8 +373,6 @@ class RealtimeManager extends APIBase {
   void onUpdate(EventCallback listener) {
     _socket!.json.on('channel:update', listener);
   }
-
-  // TODO: Test
 
   /// Returns the members of the specified channel.
   ///
@@ -406,28 +386,19 @@ class RealtimeManager extends APIBase {
   /// returns and empty array []. If timeout exceed returns null.
   ///
   /// Throws an exception if `channel` is not specified
-  Future<List<MemberData>?> getMembers(String channel) async {
-    checkRequired('channel', channel);
-    var completer = Completer<dynamic>();
+  Future<APIResponse<List<MemberData>?>> getMembers(String channel) async {
+    var response = await _fetcher.post<List<dynamic>>(
+        '/_api/rest/v1/realtime/get-members',
+        body: {'channel': channel});
 
-    // _socket!.json.once('members', (data) {
-    //   completer.complete(data);
-    // });
-
-    _socket!.json.emit('members', <String, dynamic>{'channel': channel});
-
-    var res =
-        await completer.future.timeout(const Duration(milliseconds: timout));
-
-    if (res != null) {
-      return (res as List)
-          .map((e) => MemberData.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    return null;
+    return APIResponse(
+      data: (response.data)
+          ?.map<Map<String, dynamic>>((e) => (e as Map).cast<String, dynamic>())
+          .map<MemberData>(MemberData.fromJson)
+          .toList(),
+      errors: response.errors,
+    );
   }
-
-  // TODO: Test
 
   //ignore_for_file: lines_longer_than_80_chars
 

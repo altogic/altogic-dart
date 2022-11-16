@@ -36,10 +36,9 @@ part of altogic_dart;
 class AuthManager extends APIBase {
   /// Creates an instance of [AuthManager] to manage your application users and
   /// user sessions.
-  ///
   AuthManager(AltogicClient client)
-      : _localStorage = client.settings.localStorage,
-        _singInRedirect = client.settings.signInRedirect,
+      : _localStorage = client._settings.localStorage,
+        _singInRedirect = client._settings.signInRedirect,
         _client = client,
         super(client._fetcher);
 
@@ -426,7 +425,7 @@ class AuthManager extends APIBase {
   /// to call this method.
   ///
   /// [sessionToken] Session token which uniquely identifies a user session.
-  Future<APIError?> signOut({String? sessionToken}) async {
+  Future<APIError?> signOut([String? sessionToken]) async {
     try {
       var response = await _fetcher.post<dynamic>('/_api/rest/v1/auth/signout',
           body: {if (sessionToken != null) 'token': sessionToken});

@@ -2,6 +2,8 @@
 
 Dart client for Altogic backend apps.
 
+> This package is for pure Dart. If you use it in the Flutter application, you can use the [altogic](https://pub.dev/packages/altogic) package. The [altogic](https://pub.dev/packages/altogic) package uses the `altogic_dart` package and includes some flutter-specific methods and improvements.
+
 [Altogic](https://altogic.com) is a **backend application development and execution platform**, enabling people and
 businesses to design, deploy and manage scalable applications. It simplifies application development by eliminating
 repetitive tasks, providing pre-integrated and ready-to-use execution environments, and automating key stages in the
@@ -39,9 +41,9 @@ This guide will show you how to use the key modules of the client library to exe
 more in-depth coverage, see the
 [Client API reference](https://pub.dev/documentation/altogic_dart/latest/).
 
-## Example
+## Example and Live Documentation
 
-[Example/Test Application](https://github.com/yazmehmet/altogic_flutter_example)
+[Example/Test Application](https://github.com/altogic/altogic/tree/main/dart_examples/altogic_flutter_example)
 
 ### Authentication
 
@@ -253,9 +255,8 @@ get() async {
 
 Endpoint methods (`get`,`post`,`put`,`delete`) returns a `FutureApiResponse`.
 
-FutureApiResponse have a some methods like ``asMap()``. Which type of return your endpoint the methods are will cast to
-that type. E.g. ``asMap()`` returns result as Future<APIResponse<Map<String,dynamic>>>. So you can read data
-with ``var data = result.data``, the `data` is Map<String,dynamic>?.
+`FutureApiResponse` has some methods like ``asMap()``, which type of return your endpoint the methods will cast to that type. E.g. ``asMap()`` returns result as `Future<APIResponse<Map<String,dynamic>>>`. So you can read data with ``var data = result.data``, the `data` will be `Map<String,dynamic>?`.
+
 
 ```dart
 post() async {
@@ -421,24 +422,20 @@ runOnce() async
 
 You can use the following resources to learn more and get help
 
-- 🚀 [Quick start](https://docs.altogic.com/quick-start)
-- 📜 [Altogic Docs](https://docs.altogic.com)
-- 💬 Discord community
+-  🚀 [Quick start](https://www.altogic.com/docs/quick-start)
+-  📜 [Altogic Docs](https://www.altogic.com/docs)
+-  💬 [Discord community](https://discord.gg/ERK2ssumh8)
+-  📰 [Discussion forums](https://community.altogic.com)
 
 ## Bugs Report
 
-Think you’ve found a bug? Please, send us an email support@altogic.com
+Think you’ve found a bug? Please, send us an email support@altogic.com or open issue on GitHub.
 
-Send to mehmedyaz@gmail.com for Dart/Flutter package bugs.
+[`altogic_dart` package repository](https://github.com/altogic/altogic-dart) </br>
+[`altogic` package repository](https://github.com/altogic/altogic-flutter)
 
 ## Support / Feedback
 
 For issues with, questions about, feedback for the client library, or want to see a new feature please, send us an email
 support@altogic.com or reach out to our community forums
 https://community.altogic.com
-</br>
-
-Mehmet Yaz
-
-[Email](mailto://mehmedyaz@gmail.com) , [Twitter](https://twitter.com/smehmetyaz)
-, [LinkedIn](https://www.linkedin.com/in/mehmetyaz/)

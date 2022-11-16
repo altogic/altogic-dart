@@ -298,14 +298,14 @@ class BucketManager extends APIBase {
   ///
   /// Returns the updated bucket information
   Future<APIResponse<JsonMap>> updateInfo(
-          {String? newName,
-          bool? isPublic,
-          List<String> tags = const [],
+          {required String newName,
+          required bool isPublic,
+          required List<String> tags,
           bool includeFiles = false}) =>
       _fetcher.post<JsonMap>('/_api/rest/v1/storage/bucket/update', body: {
         'tags': tags,
-        if (newName != null) 'newName': newName,
-        if (isPublic != null) 'isPublic': isPublic,
+        'newName': newName,
+        'isPublic': isPublic,
         'includeFiles': includeFiles,
         'bucket': _bucketNameOrId,
       });

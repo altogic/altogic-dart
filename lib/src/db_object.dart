@@ -4,10 +4,10 @@ part of altogic_dart;
 //Because the package must be same as altogic npm client library.
 
 /// Default [GetOptions] for [DBObject.get]
-const DEFAULT_GET_OPTIONS = GetOptions(cache: Cache.nocache);
+const DEFAULT_GET_OPTIONS = GetOptions(Cache.nocache);
 
 /// Default [CreateOptions] for [DBObject.create]
-const DEFAULT_CREATE_OPTIONS = CreateOptions(cache: Cache.nocache);
+const DEFAULT_CREATE_OPTIONS = CreateOptions(Cache.nocache);
 
 /// Default [SetOptions] for [DBObject.set]
 const DEFAULT_SET_OPTIONS = SetOptions(cache: Cache.nocache, returnTop: false);
