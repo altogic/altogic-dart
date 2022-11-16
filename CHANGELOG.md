@@ -1,3 +1,8 @@
+## 0.0.9+8
+
+- Minor bug fix to join channels when reconnected.
+- ``RealtimeManager.getMembers`` updated
+
 ## 0.0.9+6
 
 - `AltogicClient.restoreLocalAuthSession` name changed to `AltogicClient.restoreAuthSession`. Because it can restore session from local storage or checks .

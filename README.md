@@ -255,9 +255,8 @@ get() async {
 
 Endpoint methods (`get`,`post`,`put`,`delete`) returns a `FutureApiResponse`.
 
-FutureApiResponse have a some methods like ``asMap()``. Which type of return your endpoint the methods are will cast to
-that type. E.g. ``asMap()`` returns result as Future<APIResponse<Map<String,dynamic>>>. So you can read data
-with ``var data = result.data``, the `data` is Map<String,dynamic>?.
+`FutureApiResponse` has some methods like ``asMap()``, which type of return your endpoint the methods will cast to that type. E.g. ``asMap()`` returns result as `Future<APIResponse<Map<String,dynamic>>>`. So you can read data with ``var data = result.data``, the `data` will be `Map<String,dynamic>?`.
+
 
 ```dart
 post() async {
@@ -423,18 +422,17 @@ runOnce() async
 
 You can use the following resources to learn more and get help
 
-- 🚀 [Quick start](https://www.altogic.com/client/quick-start/quick-start-flutter)
-- 📜 [Altogic Docs](https://www.altogic.com/docs)
-- 💬 [Discord community](https://discord.gg/ERK2ssumh8)
-- 💬 [Discussion forums](https://community.altogic.com)
+-  🚀 [Quick start](https://www.altogic.com/docs/quick-start)
+-  📜 [Altogic Docs](https://www.altogic.com/docs)
+-  💬 [Discord community](https://discord.gg/ERK2ssumh8)
+-  📰 [Discussion forums](https://community.altogic.com)
 
 ## Bugs Report
 
 Think you’ve found a bug? Please, send us an email support@altogic.com or open issue on GitHub.
 
-[Repository](https://github.com/altogic/altogic-dart)
+[`altogic_dart` package repository](https://github.com/altogic/altogic-dart) </br>
 [`altogic` package repository](https://github.com/altogic/altogic-flutter)
-
 
 ## Support / Feedback
 
