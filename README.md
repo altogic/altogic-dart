@@ -431,7 +431,7 @@ You can use the following resources to learn more and get help
 
 ## Bugs Report
 
-Think you’ve found a bug? Please, send us an email support@altogic.com or open issue on GitHub.
+Think you’ve found a bug? Please, send us an email [support@altogic.com](mailto:support@altogic.com) or open issue on GitHub.
 
 [`altogic_dart` package repository](https://github.com/altogic/altogic-dart) </br>
 [`altogic` package repository](https://github.com/altogic/altogic-flutter)
@@ -439,5 +439,6 @@ Think you’ve found a bug? Please, send us an email support@altogic.com or open
 ## Support / Feedback
 
 For issues with, questions about, feedback for the client library, or want to see a new feature please, send us an email
-support@altogic.com or reach out to our community forums
-https://community.altogic.com
+[support@altogic.com](mailto:support@altogic.com) or reach out to our [community forums](https://community.altogic.com)
+
+

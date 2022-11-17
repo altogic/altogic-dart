@@ -82,7 +82,7 @@ class User {
         provider: json['provider'] as String,
         providerUserId: json['providerUserId'] as String,
         email: json['email'] as String?,
-        phone: json['phone'] as String,
+        phone: json['phone'] as String?,
         password: json['password'] as String?,
         profilePicture: json['profilePicture'] as String?,
         name: json['name'] as String?,
