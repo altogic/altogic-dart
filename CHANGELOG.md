@@ -1,7 +1,8 @@
-## 0.0.9+8
+## 0.0.9+9
 
 - Minor bug fix to join channels when reconnected.
 - ``RealtimeManager.getMembers`` updated
+- Documentation updates
 
 ## 0.0.9+6
 

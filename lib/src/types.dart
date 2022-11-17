@@ -34,16 +34,17 @@ part of altogic_dart;
 class User {
   /// Creates a instance of [User]
   User(this.id,
-      {required this.mailOrPhone,
-      required this.provider,
+      {required this.provider,
       required this.providerUserId,
       required this.lastLoginAt,
       required this.signUpAt,
       this.password,
       this.name,
       this.profilePicture,
-      required Map<String, dynamic> otherFields})
-      : _otherFields = otherFields;
+      Map<String, dynamic>? otherFields,
+      this.email,
+      this.phone})
+      : _otherFields = otherFields ?? {};
 
   /// Using this constructor as super constructor you can create a custom
   /// [User] implementation instance from a [User].
@@ -64,7 +65,8 @@ class User {
   /// For custom fields, implementing new [User] implementations is recommended.
   User.fromUser(User user)
       : id = user.id,
-        mailOrPhone = user.mailOrPhone,
+        email = user.email,
+        phone = user.phone,
         provider = user.provider,
         providerUserId = user.providerUserId,
         lastLoginAt = user.lastLoginAt,
@@ -79,7 +81,8 @@ class User {
         json['_id'] as String,
         provider: json['provider'] as String,
         providerUserId: json['providerUserId'] as String,
-        mailOrPhone: (json['email'] as String?) ?? (json['phone'] as String),
+        email: json['email'] as String?,
+        phone: json['phone'] as String,
         password: json['password'] as String?,
         profilePicture: json['profilePicture'] as String?,
         name: json['name'] as String?,
@@ -107,7 +110,8 @@ class User {
         '_id': id,
         'provider': provider,
         'providerUserId': providerUserId,
-        'email': mailOrPhone,
+        'email': email,
+        'phone': phone,
         if (password != null) 'password': password,
         if (profilePicture != null) 'profilePicture': profilePicture,
         if (name != null) 'name': name,
@@ -166,7 +170,7 @@ class User {
   String id;
 
   /// The authentication provider name, can be either Altogic, Google, Facebook,
-  /// Twitter etc.
+  /// Twitter, Apple etc.
   String provider;
 
   /// The user id value that is retrieved from the provider after successful
@@ -176,7 +180,10 @@ class User {
   String providerUserId;
 
   /// Users email address
-  String mailOrPhone;
+  String? email;
+
+  /// Users phone number
+  String? phone;
 
   /// Users password, valid only if Altogic is used as the authentication
   /// provider.

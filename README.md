@@ -41,9 +41,11 @@ This guide will show you how to use the key modules of the client library to exe
 more in-depth coverage, see the
 [Client API reference](https://pub.dev/documentation/altogic_dart/latest/).
 
-## Example and Live Documentation
+#### Flutter Guides / Examples
 
-[Example/Test Application](https://github.com/altogic/altogic/tree/main/dart_examples/altogic_flutter_example)
+- You can see the authentication basics with [Quickstart Guide](https://www.altogic.com/client/quick-start-authentication/with-flutter)
+- You can try all methods and see the code blocks in the [Example/Test Application](https://altogic-flutter-example.netlify.app)
+- Also you can see the basics with the [Example TO-DO Application](https://www.altogic.com/client/quick-start/quick-start-flutter)
 
 ### Authentication
 
