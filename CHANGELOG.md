@@ -1,7 +1,13 @@
-## 0.0.9+8
+## 1.0.0
+
+- Prepared to release
+- ``User-Agent`` request header customized for `dart:io` to get the correct `Session.device` and `Session.os`
+
+## 0.0.9+10
 
 - Minor bug fix to join channels when reconnected.
 - ``RealtimeManager.getMembers`` updated
+- Documentation updates
 
 ## 0.0.9+6
 

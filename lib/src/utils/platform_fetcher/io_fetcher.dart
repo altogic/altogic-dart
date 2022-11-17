@@ -44,8 +44,20 @@ Future<APIResponse<dynamic>> handlePlatformRequest(Method method, String path,
 
   var queryString = encodeUriParameters(query);
 
+  var platforms = {
+    if (Platform.isIOS) 'os': 'iOS',
+    if (Platform.isAndroid) 'os': 'Android',
+    if (Platform.isFuchsia) 'os': 'Fuchsia',
+    if (Platform.isLinux) 'os': 'Linux',
+    if (Platform.isMacOS) 'os': 'MacOS',
+    if (Platform.isWindows) 'os': 'Windows',
+    'v': Platform.version
+  };
+
+  var client = HttpClient()..userAgent = '${platforms['os']}/${platforms['v']}';
+
   var ioRequest =
-      await HttpClient().openUrl(method.name, Uri.parse(path + queryString));
+      await client.openUrl(method.name, Uri.parse(path + queryString));
 
   headers
       .map((k, v) => MapEntry(k, v.toString()))

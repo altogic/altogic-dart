@@ -25,7 +25,7 @@ part of altogic_dart;
 ///
 ///
 /// ### 3. Authentication through 3rd party Oauth providers:
-/// Such as Google,Facebook, Twitter, GitHub, Discord: This method enables to
+/// Such as Google,Facebook, Twitter, GitHub, Discord, Apple: This method enables to
 /// run the oauth flow of specific provider in your front-end applications.
 /// In order to use this method you need to make specific configuration at the
 /// provider to retrieve client id and client secret.
@@ -315,7 +315,7 @@ class AuthManager extends APIBase {
   /// this method will return an error message.
   ///
   /// You cannot use this method to log in a user who has signed up with
-  /// an Oauth2 provider such as Google, Facebook, Twitter etc.
+  /// an Oauth2 provider such as Google, Facebook, Twitter, Apple etc.
   ///
   /// [email] Email of the user
   ///
@@ -394,14 +394,8 @@ class AuthManager extends APIBase {
   /// to the redirect URL with an access token that you can use to fetch the
   /// authentication grants (e.g., user and session data).
   ///
-  /// If you are using this package with Flutter, ``signInWithProviderFlutter``
-  /// function will launch redirect URL automatically. Then, you can use the
-  /// ``handleRedirectUri`` function in `onGenerateRoute` or
-  /// `onGenerateInitialRoute` to get auth information when your application is
-  /// opened again with the redirect URL you specified in the Altogic interface.
-  ///
-  /// To access the ``signInWithProviderFlutter`` and ``handleRedirectUri``
-  /// methods, you must import the altogic_flutter package.
+  /// If you are using this package with Flutter, ``signInWithProvider``
+  /// function will launch redirect URL automatically.
   ///
   /// If this is the first time a user is using this provider then a new user
   /// record is created in the database, otherwise the lastLoginAt field value
@@ -412,7 +406,8 @@ class AuthManager extends APIBase {
   ///   "facebook" |
   ///   "twitter" |
   ///   "discord" |
-  ///   "github"
+  ///   "github" |
+  ///   "apple"
   String signInWithProvider(String provider) =>
       '${_fetcher.getBaseUrl()}/_auth/$provider';
 
